@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard | MyBank</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-light">
+  <div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>🏦 Welcome, {{ account.name }}</h2>
+      <a href="{{ url_for('logout') }}" class="btn btn-outline-dark">Logout</a>
+    </div>
+
+    <div class="card shadow p-4 mb-4">
+      <h4>Available Balance</h4>
+      <h1 class="text-success">${{ '{:,.2f}'.format(account.balance) }}</h1>
+    </div>
+
+    <div class="d-flex gap-3 mb-4">
+      <a href="{{ url_for('withdraw') }}" class="btn btn-primary">💸 Withdraw Funds</a>
+      <a href="{{ url_for('history') }}" class="btn btn-secondary">📜 View History</a>
+    </div>
+
+    <div class="card p-4 shadow">
+      <h5>Recent Transactions</h5>
+      <ul class="list-group list-group-flush">
+        {% for tx in account.transactions|reverse %}
+        <li class="list-group-item">
+          {{ tx.type }} | ${{ '{:,.2f}'.format(tx.amount) }} | {{ tx.note }}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="card mt-4 p-4 shadow">
+      <h5>📊 Transaction Chart</h5>
+      <canvas id="txChart"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const ctx = document.getElementById('txChart').getContext('2d');
+    const txChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_labels|tojson }},
+            datasets: [{
+                label: 'Transaction Amount',
+                data: {{ chart_data|tojson }},
+                backgroundColor: 'rgba(13, 110, 253, 0.6)'
+            }]
+        }
+    });
+  </script>
+</body>
+</html>
