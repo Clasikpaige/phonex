@@ -10,7 +10,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Dummy User
+# User
 class User(UserMixin):
     def __init__(self, id, name, password):
         self.id = id
@@ -19,22 +19,58 @@ class User(UserMixin):
 
 # User Store
 users = {
-    'jami': User(id='jami', name='Jami Calloway', password='secure123')
+    'jami': User(id='jami', name='Jami Caloway', password='secure343')
 }
 
 @login_manager.user_loader
 def load_user(user_id):
     return users.get(user_id)
 
-# Headless account data
 account_data = {
-    'name': 'Jami Calloway',
-    'balance': 150_000_000.00,
+    'name': 'Jami Caloway',
+    'balance': 149_993_380.00,
+    'header': 'ACCOUNT STATEMENT – UPDATED ACTIVITY',
+
     'transactions': [
-        {'type': 'Deposit', 'amount': 50_000_000, 'note': 'Initial Deposit'},
-        {'type': 'Deposit', 'amount': 100_000_000, 'note': 'Investment Funding'}
+        # Newest transactions on top
+        {'date': '2025-11-21', 'type': 'Deposit', 'amount': 100, 'note': 'Xbox Gift Card Deposit'},
+        {'date': '2025-11-21', 'type': 'Deposit', 'amount': 75,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2025-11-24', 'type': 'Deposit', 'amount': 50,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2025-11-28', 'type': 'Deposit', 'amount': 150,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2025-12-1', 'type': 'Deposit', 'amount': 30,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2025-12-3', 'type': 'Deposit', 'amount': 370,  'note':'failed deposit code inactive'},
+        {'date': '2025-12-3', 'type': 'Deposit', 'amount': 185,  'note':'Apple Giftcard Deposit'},
+        {'date': '2025-12-5', 'type': 'Deposit', 'amount': 200,  'note':'Razer Gold Giftcard Deposit'},
+        {'date': '2025-12-09', 'type': 'Deposit', 'amount': 45,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2025-12-13', 'type': 'Deposit', 'amount': 50,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2025-12-15', 'type': 'Deposit', 'amount': 45,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2025-12-19', 'type': 'Deposit', 'amount': 20,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2025-12-19', 'type': 'Deposit', 'amount': 70,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2025-12-19', 'type': 'Deposit', 'amount': 450,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2025-12-23', 'type': 'Deposit', 'amount': 50,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2026-01-02', 'type': 'Deposit', 'amount': 200,  'note':'Razer Gold Giftcard Deposit'},
+        {'date': '2026-01-05', 'type': 'Deposit', 'amount': 75,  'note':'Razer Gold Giftcard Deposit'},
+        {'date': '2025-01-06', 'type': 'Deposit', 'amount': 50,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2026-01-10', 'type': 'Deposit', 'amount': 175,  'note':'Razer Gold Giftcard Deposit'},
+        {'date': '2025-101-14', 'type': 'Deposit', 'amount': 50,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2026-01-06', 'type': 'Deposit', 'amount': 60,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2025-01-20', 'type': 'Deposit', 'amount': 50,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2025-01-21', 'type': 'Deposit', 'amount': 10,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2026-01-23', 'type': 'Deposit', 'amount': 45,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2026-01-27', 'type': 'Deposit', 'amount': 45,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2025-01-30', 'type': 'Deposit', 'amount': 75,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2025-02-03', 'type': 'Deposit', 'amount': 465,  'note': 'Xbox Gift Card Deposit'},
+        {'date': '2025-02-03', 'type': 'Deposit', 'amount': 200,  'note': 'Xbox Gift Card Deposit'},
+        # Existing historical transactions
+        {'date': '2025-10-18', 'type': 'Withdrawal', 'amount': -1600, 'note': 'Cash App Withdrawal'},
+        {'date': '2025-10-18', 'type': 'Withdrawal', 'amount': -2000, 'note': 'Cash App Withdrawal'},
+        {'date': '2025-10-17', 'type': 'Withdrawal', 'amount': -2500, 'note': 'Cash App Withdrawal'},
+        {'date': '2025-10-17', 'type': 'Withdrawal', 'amount': -700,  'note': 'Cash App Withdrawal'},
+        {'date': '2025-10-10', 'type': 'Deposit', 'amount': 100_000_000, 'note': 'Investment Funding'},
+        {'date': '2025-10-10', 'type': 'Deposit', 'amount': 50_000_000,  'note': 'Initial Deposit'}
     ]
 }
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -61,6 +97,22 @@ def dashboard():
     labels = [txn['note'] for txn in account_data['transactions']]
     data = [txn['amount'] for txn in account_data['transactions']]
     return render_template('index.html', account=account_data, chart_labels=labels, chart_data=data)
+@app.route('/card-details')
+
+@login_required
+def card_details():
+    card_info = {
+        "holder": "Jami Caloway",
+        "card_type": "Visa",
+        "card_number": "**** **** **** 5432",
+        "expiry": "06 / 30",
+        "cvv": "***",
+        "status": "Active",
+        "linked_account": "Primary Checking",
+        "bank": "Revolut",
+        "issued": "2025-06-12"
+    }
+    return render_template('card_details.html', card=card_info)
 
 @app.route('/history')
 @login_required
@@ -91,4 +143,4 @@ def withdraw():
     return render_template('withdraw.html', account=account_data, message=message)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=3535)

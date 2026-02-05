@@ -1,58 +1,254 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard | MyBank</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <meta charset="UTF-8" />
+  <title>Dashboard | Phonex</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Tailwind Config -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
 </head>
-<body class="bg-light">
-  <div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>🏦 Welcome, {{ account.name }}</h2>
-      <a href="{{ url_for('logout') }}" class="btn btn-outline-dark">Logout</a>
+
+<body class="h-full bg-slate-100 dark:bg-[#0b0f14] text-slate-900 dark:text-slate-100 transition-colors">
+
+<!-- ============================= -->
+<!-- TOP BAR -->
+<!-- ============================= -->
+<header class="fixed top-0 inset-x-0 z-50 bg-white/70 dark:bg-black/50 backdrop-blur-xl border-b border-slate-200 dark:border-white/10">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+    <h1 class="font-semibold tracking-tight text-lg">Phonex</h1>
+
+    <div class="flex items-center gap-4">
+      <!-- Dark mode toggle -->
+      <button id="themeToggle"
+        class="rounded-xl border border-slate-300 dark:border-white/20
+               px-3 py-2 text-sm hover:bg-slate-900 hover:text-white
+               dark:hover:bg-white dark:hover:text-black transition">
+
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 3v1m0 16v1m8.66-8.66h-1M4.34 12h-1
+                   m15.02 5.02-.7-.7M6.34 6.34l-.7-.7
+                   m12.02-.7-.7.7M6.34 17.66l-.7.7
+                   M12 7a5 5 0 100 10 5 5 0 000-10z"/>
+        </svg>
+      </button>
+
+      <a href="{{ url_for('logout') }}"
+        class="rounded-xl bg-slate-900 dark:bg-white
+               text-white dark:text-black
+               px-4 py-2 text-sm font-medium transition">
+        Logout
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ============================= -->
+<!-- FLOATING NOTIFICATION -->
+<!-- ============================= -->
+<div id="notifyBox"
+  onclick="toggleNotice()"
+  class="fixed top-20 left-1/2 -translate-x-1/2 w-[92%] max-w-2xl
+         bg-white/70 dark:bg-black/60 backdrop-blur-xl rounded-2xl
+         shadow-xl px-6 py-4 cursor-pointer transition-all z-40">
+
+  <div id="notifyTitle" class="flex items-center gap-2 font-semibold text-sm">
+    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2"
+         viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11
+               a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5"/>
+      <path d="M13.7 21a2 2 0 01-3.4 0"/>
+    </svg>
+    New Account Notice — Tap to Expand
+  </div>
+
+  <div id="notifyContent"
+       class="hidden mt-3 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+    Payment for premium <strong>settled</strong>
+     <strong></strong> 
+    <br><br>
+    Updates about your account will appear here.
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- MAIN CONTENT -->
+<!-- ============================= -->
+<main class="max-w-7xl mx-auto px-4 pt-36 pb-12 space-y-10">
+
+  <!-- Welcome -->
+  <section>
+    <h2 class="text-2xl font-bold tracking-tight">
+      Welcome, {{ account.name }}
+    </h2>
+    <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">
+      Here’s your financial overview
+    </p>
+  </section>
+
+  <!-- Balance Card -->
+  <section class="bg-white dark:bg-[#121821] rounded-3xl p-8 shadow-sm overflow-hidden">
+    <p class="text-sm text-slate-500 dark:text-slate-400 mb-2">Available Balance</p>
+
+    <div id="balanceSkeleton"
+         class="h-10 sm:h-12 w-full max-w-[18rem]
+                bg-slate-200 dark:bg-white/10
+                rounded-lg animate-pulse">
     </div>
 
-    <div class="card shadow p-4 mb-4">
-      <h4>Available Balance</h4>
-      <h1 class="text-success">${{ '{:,.2f}'.format(account.balance) }}</h1>
-    </div>
+    <h3 id="balanceValue"
+        data-balance="{{ account.balance }}"
+        class="hidden font-extrabold text-emerald-500
+               text-3xl sm:text-4xl md:text-5xl break-all">
+      $0.00
+    </h3>
+  </section>
 
-    <div class="d-flex gap-3 mb-4">
-      <a href="{{ url_for('withdraw') }}" class="btn btn-primary">💸 Withdraw Funds</a>
-      <a href="{{ url_for('history') }}" class="btn btn-secondary">📜 View History</a>
-    </div>
+  <!-- Actions -->
+  <section class="flex flex-wrap gap-3">
+    <a href="{{ url_for('withdraw') }}"
+      class="inline-flex items-center gap-2
+             rounded-xl bg-blue-600 hover:bg-blue-700
+             px-4 py-2.5 text-sm font-medium text-white transition">
+      Withdraw Funds
+    </a>
 
-    <div class="card p-4 shadow">
-      <h5>Recent Transactions</h5>
-      <ul class="list-group list-group-flush">
+    <a href="{{ url_for('history') }}"
+      class="inline-flex items-center gap-2
+             rounded-xl bg-slate-200 dark:bg-white/10
+             hover:bg-slate-300 dark:hover:bg-white/20
+             px-4 py-2.5 text-sm font-medium transition">
+      View History
+    </a>
+
+    <a href="{{ url_for('card_details') }}"
+      class="inline-flex items-center gap-2
+             rounded-xl bg-slate-900 dark:bg-white
+             text-white dark:text-black
+             px-4 py-2.5 text-sm font-medium transition">
+      Card & Account Details
+    </a>
+  </section>
+
+  <!-- Grid -->
+  <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    <!-- Transactions -->
+    <div class="bg-white dark:bg-[#121821] rounded-3xl p-6 shadow-sm">
+      <h4 class="font-semibold mb-4">Recent Transactions</h4>
+
+      <ul class="divide-y divide-slate-200 dark:divide-white/10">
         {% for tx in account.transactions|reverse %}
-        <li class="list-group-item">
-          {{ tx.type }} | ${{ '{:,.2f}'.format(tx.amount) }} | {{ tx.note }}
+        <li class="py-4 flex justify-between items-center">
+          <div>
+            <p class="font-medium">{{ tx.type }}</p>
+            <p class="text-xs text-slate-500">{{ tx.date }} — {{ tx.note }}</p>
+          </div>
+          <span class="font-semibold">
+            ${{ '{:,.2f}'.format(tx.amount) }}
+          </span>
         </li>
         {% endfor %}
       </ul>
     </div>
 
-    <div class="card mt-4 p-4 shadow">
-      <h5>📊 Transaction Chart</h5>
-      <canvas id="txChart"></canvas>
+    <!-- Chart -->
+    <div class="bg-white dark:bg-[#121821] rounded-3xl p-6 shadow-sm">
+      <h4 class="flex items-center gap-2 font-semibold mb-4">
+        <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M11 3v18M6 8v13M16 13v8M21 18V6"/>
+        </svg>
+        Activity
+      </h4>
+      <canvas id="txChart" class="h-64"></canvas>
     </div>
-  </div>
 
-  <script>
-    const ctx = document.getElementById('txChart').getContext('2d');
-    const txChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: {{ chart_labels|tojson }},
-            datasets: [{
-                label: 'Transaction Amount',
-                data: {{ chart_data|tojson }},
-                backgroundColor: 'rgba(13, 110, 253, 0.6)'
-            }]
-        }
-    });
-  </script>
+  </section>
+</main>
+
+<!-- ============================= -->
+<!-- SCRIPTS -->
+<!-- ============================= -->
+<script>
+/* DARK MODE */
+const toggle = document.getElementById('themeToggle');
+const root = document.documentElement;
+
+if (localStorage.theme === 'dark' ||
+   (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+  root.classList.add('dark');
+}
+
+toggle.onclick = () => {
+  root.classList.toggle('dark');
+  localStorage.theme = root.classList.contains('dark') ? 'dark' : 'light';
+};
+
+/* NOTIFICATION */
+function toggleNotice() {
+  document.getElementById('notifyContent').classList.toggle('hidden');
+}
+
+/* BALANCE COUNT-UP */
+const balanceEl = document.getElementById('balanceValue');
+const skeleton = document.getElementById('balanceSkeleton');
+const target = parseFloat(balanceEl.dataset.balance);
+
+setTimeout(() => {
+  skeleton.classList.add('hidden');
+  balanceEl.classList.remove('hidden');
+
+  const duration = 1200;
+  const startTime = performance.now();
+
+  function animate(time) {
+    const progress = Math.min((time - startTime) / duration, 1);
+    const value = progress * target;
+    balanceEl.textContent = `$${value.toLocaleString(undefined,{minimumFractionDigits:2})}`;
+    if (progress < 1) requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+}, 900);
+
+/* CHART */
+new Chart(document.getElementById('txChart'), {
+  type: 'bar',
+  data: {
+    labels: {{ chart_labels|tojson }},
+    datasets: [{
+      data: {{ chart_data|tojson }},
+      backgroundColor: 'rgba(37, 99, 235, 0.75)',
+      borderRadius: 8
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true } }
+  }
+});
+</script>
+
 </body>
 </html>
