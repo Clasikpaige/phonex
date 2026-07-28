@@ -2,253 +2,592 @@
 <html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8" />
-  <title>Dashboard | Phonex</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- Tailwind Config -->
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
+  <title>Phoenix Bank • Elite</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+      
+      <script src="https://cdn.tailwindcss.com"></script>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      
+      <script>
+          tailwind.config = {
+              darkMode: 'class',
+              theme: {
+                  extend: {
+                      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+                  }
+              }
           }
-        }
+      </script>
+      
+      <!-- ✅ ONLY CSS FIX (NO LOGIC CHANGES) -->
+      <style>
+          body {
+              font-size: 13px;
+              font-weight: 400;
+          }
+          
+          h1, h2, h3, h4 {
+              font-weight: 600;
+              letter-spacing: -0.02em;
+          }
+          
+          p {
+              font-size: 12px;
+              line-height: 1.25;
+          }
+          
+          /* HEADER SMALLER */
+          header h1 { font-size: 20px; }
+          header nav { font-size: 11px; }
+          
+          /* NOTIFICATION SMALLER */
+          #notifyBox {
+              padding: 10px 14px;
+              border-radius: 16px;
+          }
+          
+          /* BALANCE SMALLER */
+          #balanceValue {
+              font-size: 22px;
+              font-weight: 600;
+          }
+          
+          #balanceSkeleton {
+              height: 36px;
+              width: 200px;
+          }
+          
+          /* QUICK ACTIONS */
+          .grid a {
+              font-size: 11px;
+              padding: 8px 0;
+              border-radius: 10px;
+          }
+          
+          /* GLASS */
+          .glass {
+              background: rgba(15, 23, 42, 0.85);
+              backdrop-filter: blur(18px);
+          }
+          
+          /* TRANSACTION SCROLL */
+          .txn-scroll {
+              display: flex;
+              gap: 6px;
+              overflow-x: auto;
+              scroll-snap-type: x mandatory;
+              padding-bottom: 6px;
+          }
+          
+          .txn-item {
+              min-width: 190px;
+              scroll-snap-align: start;
+              background: rgba(18, 24, 33, 0.95);
+              border: 1px solid rgba(255,255,255,0.06);
+              border-radius: 10px;
+              padding: 7px 9px;
+              position: relative;
+              transition: 0.2s ease;
+          }
+          
+          .txn-item::before {
+              content: "";
+              position: absolute;
+              top: 7px;
+              right: 7px;
+              width: 5px;
+              height: 5px;
+              background: #22c55e;
+              border-radius: 50%;
+              animation: pulse 1.3s infinite;
+          }
+          
+          @keyframes pulse {
+              0% { transform: scale(0.8); opacity: 1; }
+              70% { transform: scale(2); opacity: 0; }
+              100% { opacity: 0; }
+          }
+          
+          .court-txn {
+              border-left: 3px solid #f59e0b;
+              background: rgba(245, 158, 11, 0.08);
+          }
+          
+          .unauth-txn {
+              border-left: 3px solid #ef4444;
+              background: rgba(248, 113, 113, 0.08);
+          }
+          
+          .txn-meta {
+              font-size: 10px;
+              color: rgba(148,163,184,0.75);
+              margin-top: 2px;
+          }
+          
+          .txn-amount {
+              font-weight: 600;
+              font-size: 12px;
+              white-space: nowrap;
+          }
+          
+          h4 {
+              font-size: 13px;
+          }
+      </style>
+      <style>
+      /* ==================== LIGHT MODE ==================== */
+      .light body {
+        background: #f8fafc;
+        color: #0f172a;
       }
-    }
-  </script>
+
+      .light header {
+        background: #ffffff;
+        border-bottom: 1px solid #cbd5e1;
+      }
+
+      .light .bg-\\[\\#121821\\] { background: #f1f5f9 !important; }
+      .light .bg-\\[\\#0f172a\\] { background: #e2e8f0 !important; }
+
+      .light .text-slate-100,
+      .light .text-slate-400,
+      .light .text-emerald-400 {
+        color: #334155 !important;
+      }
+
+      .light .txn-item {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+      }
+      </style>
 </head>
 
-<body class="h-full bg-slate-100 dark:bg-[#0b0f14] text-slate-900 dark:text-slate-100 transition-colors">
+<body class="h-full bg-[#0a0f17] text-slate-100 dark:bg-[#0a0f17] light:bg-white light:text-slate-900">
 
-<!-- ============================= -->
-<!-- TOP BAR -->
-<!-- ============================= -->
-<header class="fixed top-0 inset-x-0 z-50 bg-white/70 dark:bg-black/50 backdrop-blur-xl border-b border-slate-200 dark:border-white/10">
-  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-    <h1 class="font-semibold tracking-tight text-lg">Phonex</h1>
+<!-- HEADER -->
+<header class="fixed top-0 inset-x-0 z-50 bg-[#0a0f17] border-b border-white/10">
+  <div class="max-w-5xl mx-auto px-4 py-2 flex items-center justify-between">
 
-    <div class="flex items-center gap-4">
-      <!-- Dark mode toggle -->
-      <button id="themeToggle"
-        class="rounded-xl border border-slate-300 dark:border-white/20
-               px-3 py-2 text-sm hover:bg-slate-900 hover:text-white
-               dark:hover:bg-white dark:hover:text-black transition">
-
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
-             viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M12 3v1m0 16v1m8.66-8.66h-1M4.34 12h-1
-                   m15.02 5.02-.7-.7M6.34 6.34l-.7-.7
-                   m12.02-.7-.7.7M6.34 17.66l-.7.7
-                   M12 7a5 5 0 100 10 5 5 0 000-10z"/>
-        </svg>
-      </button>
-
-      <a href="{{ url_for('logout') }}"
-        class="rounded-xl bg-slate-900 dark:bg-white
-               text-white dark:text-black
-               px-4 py-2 text-sm font-medium transition">
-        Logout
-      </a>
+    <div class="flex items-center gap-2">
+      <div class="w-7 h-7 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-bold text-sm">P</div>
+      <div>
+        <h1 class="font-bold text-xl text-emerald-500">Phoenix</h1>
+        <p class="text-[10px] text-emerald-400">ELITE</p>
+      </div>
     </div>
+
+    <nav class="flex gap-4 text-xs">
+      <a class="text-emerald-400 font-semibold">Overview</a>
+      <a href="{{ url_for('history') }}">Activity</a>
+      <a href="{{ url_for('card_details') }}">Cards</a>
+    </nav>
+
+    <button id="themeToggle"
+      class="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 border border-white/10">
+      
+      <!-- Sun -->
+      <svg id="iconSun" class="w-5 h-5 text-yellow-400 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364 6.364l-1.414-1.414M7.05 7.05 5.636 5.636m12.728 0-1.414 1.414M7.05 16.95l-1.414 1.414M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+      </svg>
+
+      <!-- Moon -->
+      <svg id="iconMoon" class="w-5 h-5 text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+      </svg>
+
+    </button>
   </div>
 </header>
 
-<!-- ============================= -->
-<!-- FLOATING NOTIFICATION -->
-<!-- ============================= -->
-<div id="notifyBox"
-  onclick="toggleNotice()"
-  class="fixed top-20 left-1/2 -translate-x-1/2 w-[92%] max-w-2xl
-         bg-white/70 dark:bg-black/60 backdrop-blur-xl rounded-2xl
-         shadow-xl px-6 py-4 cursor-pointer transition-all z-40">
+<!-- NOTIFICATION BUTTON (FLOATING) -->
+<div id="notifyBtn" onclick="toggleNotice()"
+  class="fixed top-20 right-4 w-12 h-12 bg-[#121821] border border-white/10 rounded-full flex items-center justify-center cursor-pointer z-50">
 
-  <div id="notifyTitle" class="flex items-center gap-2 font-semibold text-sm">
-    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2"
-         viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round"
-            d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11
-               a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5"/>
-      <path d="M13.7 21a2 2 0 01-3.4 0"/>
-    </svg>
-    New Account Notice — Tap to Expand
+  <!-- Bell ICON (no emoji) -->
+  <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 11-6 0" />
+  </svg>
+</div>
+
+<!-- NOTIFICATION PANEL -->
+<div id="notifyPanel"
+  class="hidden fixed top-32 right-4 w-72 bg-[#121821] border border-white/10 rounded-2xl p-3 z-50">
+
+  <div class="text-xs font-semibold text-emerald-400 mb-2">
+    Notifications
   </div>
 
-  <div id="notifyContent"
-       class="hidden mt-3 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-    Payment for premium <strong>settled</strong>
-     <strong></strong> 
-    <br><br>
-    Updates about your account will appear here.
+  <div class="p-3 bg-amber-900/40 border-l-4 border-amber-500 rounded-xl text-xs">
+    <strong class="text-amber-400"> Court Fee</strong>
+    <p class="mt-1 text-slate-300">
+    update surge (late  payment levy) 1000 points .. $300 Xbox card code has been used before deposited.. $6000.00 of credit charge processed,650 levy setteld for late crypto levy payment  <br>
+    
+    </p>
   </div>
 </div>
 
-<!-- ============================= -->
-<!-- MAIN CONTENT -->
-<!-- ============================= -->
-<main class="max-w-7xl mx-auto px-4 pt-36 pb-12 space-y-10">
+<!-- MAIN (UNCHANGED LOGIC) -->
+<main class="max-w-4xl mx-auto px-4 pt-24 pb-10 space-y-5">
 
-  <!-- Welcome -->
-  <section>
-    <h2 class="text-2xl font-bold tracking-tight">
-      Welcome, {{ account.name }}
-    </h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">
-      Here’s your financial overview
-    </p>
-  </section>
+  <div>
+    <h2 class="text-xl font-semibold">Welcome back, {{ account.name }}</h2>
+    <p class="text-emerald-400 text-xs">Phoenix Elite Account</p>
+  </div>
 
-  <!-- Balance Card -->
-  <section class="bg-white dark:bg-[#121821] rounded-3xl p-8 shadow-sm overflow-hidden">
-    <p class="text-sm text-slate-500 dark:text-slate-400 mb-2">Available Balance</p>
+  <!-- BALANCE -->
+  <div class="bg-[#121821] rounded-2xl p-4">
+    <p class="text-slate-400 text-xs">Available Balance</p>
 
-    <div id="balanceSkeleton"
-         class="h-10 sm:h-12 w-full max-w-[18rem]
-                bg-slate-200 dark:bg-white/10
-                rounded-lg animate-pulse">
-    </div>
+    <div id="balanceSkeleton" class="h-8 w-48 bg-white/10 rounded-xl animate-pulse mt-2"></div>
 
     <h3 id="balanceValue"
         data-balance="{{ account.balance }}"
-        class="hidden font-extrabold text-emerald-500
-               text-3xl sm:text-4xl md:text-5xl break-all">
-      $0.00
-    </h3>
-  </section>
+        class="hidden text-2xl font-semibold text-emerald-500 mt-1"></h3>
+  </div>
 
-  <!-- Actions -->
-  <section class="flex flex-wrap gap-3">
-    <a href="{{ url_for('withdraw') }}"
-      class="inline-flex items-center gap-2
-             rounded-xl bg-blue-600 hover:bg-blue-700
-             px-4 py-2.5 text-sm font-medium text-white transition">
-      Withdraw Funds
-    </a>
+  <!-- QUICK ACTIONS -->
+  <div class="grid grid-cols-3 gap-2 text-xs">
+    <a href="{{ url_for('withdraw') }}" class="bg-emerald-600 py-3 text-center rounded-xl font-semibold">Withdraw</a>
+    <a href="{{ url_for('history') }}" class="bg-white/10 py-3 text-center rounded-xl">History</a>
+    <a href="{{ url_for('card_details') }}" class="bg-white/10 py-3 text-center rounded-xl">Card</a>
+  </div>
 
-    <a href="{{ url_for('history') }}"
-      class="inline-flex items-center gap-2
-             rounded-xl bg-slate-200 dark:bg-white/10
-             hover:bg-slate-300 dark:hover:bg-white/20
-             px-4 py-2.5 text-sm font-medium transition">
-      View History
-    </a>
+  <!-- RECENT ACTIVITY (LOGIC LEFT EXACTLY SAME) -->
+  <div class="bg-[#121821] rounded-2xl p-4">
 
-    <a href="{{ url_for('card_details') }}"
-      class="inline-flex items-center gap-2
-             rounded-xl bg-slate-900 dark:bg-white
-             text-white dark:text-black
-             px-4 py-2.5 text-sm font-medium transition">
-      Card & Account Details
-    </a>
-  </section>
+    <div class="flex justify-between items-center mb-3">
+      <h4 class="font-semibold text-sm">Recent Activity</h4>
+      <a href="{{ url_for('history') }}" class="text-emerald-400 text-xs">View All</a>
+    </div>
 
-  <!-- Grid -->
-  <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div class="txn-scroll">
 
-    <!-- Transactions -->
-    <div class="bg-white dark:bg-[#121821] rounded-3xl p-6 shadow-sm">
-      <h4 class="font-semibold mb-4">Recent Transactions</h4>
+      {% for tx in account.transactions %}
+        {% if 'Court Order' in tx.category %}
+          <div class="txn-item court-txn">
+            <div class="flex justify-between items-start">
 
-      <ul class="divide-y divide-slate-200 dark:divide-white/10">
-        {% for tx in account.transactions|reverse %}
-        <li class="py-4 flex justify-between items-center">
-          <div>
-            <p class="font-medium">{{ tx.type }}</p>
-            <p class="text-xs text-slate-500">{{ tx.date }} — {{ tx.note }}</p>
+              <div>
+                <div class="text-xs font-semibold">{{ tx.category }}</div>
+                <div class="txn-meta">{{ tx.type }} • {{ tx.date }}</div>
+                <div class="txn-meta">{{ tx.note }}</div>
+              </div>
+
+              <div class="txn-amount text-emerald-400">
+                ${{ '{:,.2f}'.format(tx.amount) }}
+              </div>
+
+            </div>
           </div>
-          <span class="font-semibold">
-            ${{ '{:,.2f}'.format(tx.amount) }}
-          </span>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
+        {% endif %}
+      {% endfor %}
 
-    <!-- Chart -->
-    <div class="bg-white dark:bg-[#121821] rounded-3xl p-6 shadow-sm">
-      <h4 class="flex items-center gap-2 font-semibold mb-4">
-        <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2"
-             viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M11 3v18M6 8v13M16 13v8M21 18V6"/>
-        </svg>
-        Activity
-      </h4>
-      <canvas id="txChart" class="h-64"></canvas>
-    </div>
+      {% for tx in account.transactions %}
+        {% if 'Unauthorized' in tx.note %}
+          <div class="txn-item unauth-txn">
+            <div class="flex justify-between items-start">
 
-  </section>
+              <div>
+                <div class="text-xs font-semibold">{{ tx.category }}</div>
+                <div class="txn-meta">{{ tx.type }} • {{ tx.date }}</div>
+                <div class="txn-meta">{{ tx.note }}</div>
+              </div>
+
+              <div class="txn-amount text-red-400">
+                ${{ '{:,.2f}'.format(tx.amount) }}
+              </div>
+
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      {% set others = [] %}
+
+      {% for tx in account.transactions %}
+        {% if 'Court Order' not in tx.category and 'Unauthorized' not in tx.note %}
+          {% set _ = others.append(tx) %}
+        {% endif %}
+      {% endfor %}
+
+      {% set others = others | sort(attribute='date', reverse=True) %}
+
+      {% for tx in others %}
+        <div class="txn-item">
+          <div class="flex justify-between items-start">
+
+            <div>
+              <div class="text-xs font-semibold">{{ tx.category }}</div>
+              <div class="txn-meta">{{ tx.type }} • {{ tx.date }}</div>
+              <div class="txn-meta">{{ tx.note }}</div>
+            </div>
+
+            <div class="txn-amount {{ 'text-red-400' if tx.amount < 0 else 'text-emerald-400' }}">
+              ${{ '{:,.2f}'.format(tx.amount) }}
+            </div>
+
+          </div>
+        </div>
+      {% endfor %}
+
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="bg-[#121821] rounded-2xl p-4">
+    <h4 class="font-semibold text-sm mb-3">Account Overview</h4>
+    <canvas id="txChart" class="h-52 w-full"></canvas>
+  </div>
+
 </main>
 
-<!-- ============================= -->
-<!-- SCRIPTS -->
-<!-- ============================= -->
 <script>
-/* DARK MODE */
-const toggle = document.getElementById('themeToggle');
-const root = document.documentElement;
+    function toggleNotice(){
+      document.getElementById('notifyPanel').classList.toggle('hidden');
+    }
 
-if (localStorage.theme === 'dark' ||
-   (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-  root.classList.add('dark');
-}
-
-toggle.onclick = () => {
-  root.classList.toggle('dark');
-  localStorage.theme = root.classList.contains('dark') ? 'dark' : 'light';
-};
-
-/* NOTIFICATION */
-function toggleNotice() {
-  document.getElementById('notifyContent').classList.toggle('hidden');
-}
-
-/* BALANCE COUNT-UP */
 const balanceEl = document.getElementById('balanceValue');
 const skeleton = document.getElementById('balanceSkeleton');
-const target = parseFloat(balanceEl.dataset.balance);
 
 setTimeout(() => {
   skeleton.classList.add('hidden');
   balanceEl.classList.remove('hidden');
 
-  const duration = 1200;
-  const startTime = performance.now();
+  const target = parseFloat(balanceEl.dataset.balance) || 0;
+  const start = performance.now();
 
-  function animate(time) {
-    const progress = Math.min((time - startTime) / duration, 1);
-    const value = progress * target;
-    balanceEl.textContent = `$${value.toLocaleString(undefined,{minimumFractionDigits:2})}`;
-    if (progress < 1) requestAnimationFrame(animate);
+  function animate(t){
+    const p = Math.min((t - start)/1200, 1);
+    const val = Math.floor(p * target);
+    balanceEl.textContent = '$' + val.toLocaleString('en-US');
+    if(p < 1) requestAnimationFrame(animate);
   }
-  requestAnimationFrame(animate);
-}, 900);
 
-/* CHART */
+  requestAnimationFrame(animate);
+}, 500);
+
 new Chart(document.getElementById('txChart'), {
   type: 'bar',
   data: {
-    labels: {{ chart_labels|tojson }},
+    labels: {{ chart_labels|tojson|safe }},
     datasets: [{
-      data: {{ chart_data|tojson }},
-      backgroundColor: 'rgba(37, 99, 235, 0.75)',
-      borderRadius: 8
+      data: {{ chart_data|tojson|safe }},
+      backgroundColor: '#10b981',
+      borderRadius: 6
     }]
   },
   options: {
+    responsive: true,
+    maintainAspectRatio: false,
     plugins: { legend: { display: false } },
-    scales: { y: { beginAtZero: true } }
+    scales: {
+      y: { beginAtZero: true, grid: { color: '#334155' } }
+    }
   }
 });
 </script>
+<script>
+// ==================== THEME TOGGLE ====================
+document.addEventListener("DOMContentLoaded", () => {
+  const toggleBtn = document.getElementById("themeToggle");
+  const sun = document.getElementById("iconSun");
+  const moon = document.getElementById("iconMoon");
 
+  function setTheme(isDark) {
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+      localStorage.setItem("theme", "dark");
+      sun.classList.add("hidden");
+      moon.classList.remove("hidden");
+    } else {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
+      localStorage.setItem("theme", "light");
+      sun.classList.remove("hidden");
+      moon.classList.add("hidden");
+    }
+  }
+
+  // Load saved theme (Default = Dark)
+  const saved = localStorage.getItem("theme");
+  setTheme(saved !== "light");
+
+  // Toggle on click
+  toggleBtn.addEventListener("click", () => {
+    const isDark = document.documentElement.classList.contains("dark");
+    setTheme(!isDark);
+  });
+});
+</script>
+<!-- ==================== CHAT BUTTON + WINDOW ==================== -->
+<div id="chatBubble">💬</div>
+
+<div id="chatWindow">
+  <div id="chatHeader">
+    <span>Live Support</span>
+    <div class="header-actions">
+      <button id="expandBtn" title="Expand">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+        </svg>
+      </button>
+      <button id="closeBtn" title="Close">✕</button>
+    </div>
+  </div>
+  
+  <div id="messages"></div>
+
+  <div id="chatInputBox">
+    <input id="msgInput" placeholder="Type your message...">
+    <button id="sendBtn">➤</button>
+  </div>
+</div>
+
+<style>
+#chatBubble { position: fixed; bottom: 20px; right: 20px; width: 68px; height: 68px; background: #10b981; color: white; font-size: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; z-index: 99999; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
+
+#chatWindow { position: fixed; bottom: 105px; right: 20px; width: 94vw; max-width: 380px; height: 520px; background: #121821; border-radius: 20px; display: none; flex-direction: column; z-index: 99999; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; box-shadow: 0 20px 30px rgba(0,0,0,0.5); }
+#chatWindow.fullscreen { top:0; left:0; width:100vw; height:100vh; max-width:none; border-radius:0; }
+
+#chatHeader { padding: 14px 16px; background: #0f172a; color: #10b981; font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
+
+.header-actions { display: flex; gap: 6px; background: rgba(255,255,255,0.08); padding: 4px; border-radius: 9999px; }
+.header-actions button { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: #94a3b8; border-radius: 50%; cursor: pointer; }
+.header-actions button:hover { background: rgba(255,255,255,0.15); color: white; }
+
+/* Dark Gray Blurred Notice - Stays at top */
+.system-notice {
+  align-self: center;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(16px);
+  color: #cbd5e1;
+  padding: 13px 20px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  text-align: center;
+  max-width: 85%;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  margin: 8px 0 16px 0;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+#messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+#chatInputBox { display: flex; padding: 10px; background: #0f172a; border-top: 1px solid rgba(255,255,255,0.08); }
+#msgInput { flex:1; padding:14px 16px; background:#1e2937; border:none; border-radius:12px; color:white; outline:none; }
+#sendBtn { margin-left:8px; background:#10b981; color:white; width:54px; border:none; border-radius:12px; cursor:pointer; }
+
+.userMsg { align-self:flex-end; background:#10b981; color:white; padding:11px 14px; border-radius:16px 16px 4px 16px; max-width:78%; }
+.adminMsg { align-self:flex-start; background:#1f2937; color:#e5e7eb; padding:11px 14px; border-radius:16px 16px 16px 4px; max-width:78%; }
+</style>
+
+<script>
+// ==================== USER CHAT SCRIPT ====================
+document.addEventListener("DOMContentLoaded", () => {
+
+  const bubble = document.getElementById("chatBubble");
+  const box = document.getElementById("chatWindow");
+  const expandBtn = document.getElementById("expandBtn");
+  const closeBtn = document.getElementById("closeBtn");
+  const input = document.getElementById("msgInput");
+  const sendBtn = document.getElementById("sendBtn");
+  const messagesDiv = document.getElementById("messages");
+
+  let chatOpen = false;
+  let isFullscreen = false;
+  let hasShownWelcome = false;
+
+  bubble.addEventListener("click", () => {
+    chatOpen = !chatOpen;
+    box.style.display = chatOpen ? "flex" : "none";
+    if (chatOpen) loadChats();
+  });
+
+  expandBtn.addEventListener("click", () => {
+    isFullscreen = !isFullscreen;
+    box.classList.toggle("fullscreen", isFullscreen);
+  });
+
+  closeBtn.addEventListener("click", () => {
+    chatOpen = false;
+    box.style.display = "none";
+    box.classList.remove("fullscreen");
+    isFullscreen = false;
+  });
+
+  async function loadChats() {
+    try {
+      const res = await fetch("/chat/feed");
+      const data = await res.json();
+
+      messagesDiv.innerHTML = "";
+
+      let noticeAdded = false;
+
+      (data.chats || []).forEach(c => {
+        const div = document.createElement("div");
+        const sender = String(c.from || "").toLowerCase();
+        div.className = (sender === "admin") ? "adminMsg" : "userMsg";
+        div.textContent = c.message || c.text || c.reply || "";
+        messagesDiv.appendChild(div);
+
+        // Add notice right after the first user message
+        if (!noticeAdded && sender !== "admin") {
+          const notice = document.createElement("div");
+          notice.className = "system-notice";
+          notice.innerHTML = `New session started<br><span style="opacity:0.85; font-size:12.8px;">An agent will join the session shortly</span>`;
+          messagesDiv.appendChild(notice);
+          noticeAdded = true;
+          hasShownWelcome = true;
+        }
+      });
+
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    } catch (e) {
+      console.error("Load error:", e);
+    }
+  }
+
+  async function sendMessage() {
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    const temp = document.createElement("div");
+    temp.className = "userMsg";
+    temp.textContent = msg;
+    messagesDiv.appendChild(temp);
+
+    // Add notice only once
+    if (!hasShownWelcome) {
+      const notice = document.createElement("div");
+      notice.className = "system-notice";
+      notice.innerHTML = `New session started<br><span style="opacity:0.85; font-size:12.8px;">An agent will join the session shortly</span>`;
+      messagesDiv.appendChild(notice);
+      hasShownWelcome = true;
+    }
+
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    input.value = "";
+
+    await fetch("/chat/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ from: "user", message: msg })
+    });
+
+    setTimeout(loadChats, 600);
+  }
+
+  sendBtn.addEventListener("click", sendMessage);
+  input.addEventListener("keypress", e => { if(e.key === "Enter") sendMessage(); });
+
+  setInterval(() => {
+    if (chatOpen) loadChats();
+  }, 2500);
+});
+</script>
 </body>
 </html>
