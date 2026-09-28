@@ -2,48 +2,166 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>History</title>
+<title>Transaction History | MyBank</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Tailwind for modern utility styling -->
+<script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-body { font-family: Arial; background:#f4f4f4; }
-.container { max-width:900px; margin:40px auto; }
-.card { background:white; padding:15px; margin-bottom:10px; border-radius:10px; }
-.amount { float:right; font-weight:bold; }
-.pos { color:green; }
-.neg { color:red; }
+/* ---------- Base ---------- */
+body {
+  font-family:apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+  background: linear-gradient(180deg, #f0f4f8 0%, #d9e2ec 100%);
+  color: #1f2937;
+  min-height: 100vh;
+}
+
+/* ---------- Main Panel (Matching Withdraw UI) ---------- */
+.bank-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.bank-panel {
+  width: 100%;
+  max-width: 700px; /* Wider than withdraw to fit transaction details */
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  padding: 32px 28px;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+  animation: fadeUp .6s ease;
+}
+
+/* ---------- Header ---------- */
+.bank-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.bank-subtitle {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 24px;
+}
+
+/* ---------- Transaction Cards ---------- */
+.txn-card {
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(255,255,255,0.8);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all 0.25s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.txn-card:hover {
+  background: rgba(255,255,255,0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.04);
+}
+
+.txn-amount {
+  font-weight: 600;
+  font-size: 1.1rem;
+  white-space: nowrap;
+}
+
+.txn-pos { color: #059669; }
+.txn-neg { color: #dc2626; }
+
+/* ---------- Buttons ---------- */
+.bank-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: white;
+  font-weight: 500;
+  border: none;
+  transition: transform .15s ease, box-shadow .15s ease;
+  text-align: center;
+  display: block;
+  text-decoration: none;
+  margin-top: 24px;
+}
+
+.bank-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px rgba(79,70,229,0.3);
+  color: white;
+}
+
+/* ---------- Animation ---------- */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.txn-list-item {
+  animation: fadeUp .5s ease forwards;
+  opacity: 0;
+}
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="bank-shell">
+  <div class="bank-panel">
 
-<h2>Transaction History</h2>
+    <h2 class="bank-title">Transaction History</h2>
+    <p class="bank-subtitle">{{ account.name }} • Phoenix Elite Account</p>
 
-<a href="{{ url_for('dashboard') }}">Back</a>
+    <!-- Transaction List -->
+    <div class="space-y-3">
+      {% for tx in account.transactions %}
+      
+      <!-- Using inline style for staggered animation delay -->
+      <div class="txn-card txn-list-item" style="animation-delay: {{ loop.index0 * 0.05 }}s;">
+        
+        <div class="flex flex-col gap-1 pr-4">
+          <div class="font-semibold text-sm text-gray-800">
+            {{ tx.category }}
+          </div>
+          <div class="text-xs text-gray-500">
+            {{ tx.description }}
+          </div>
+          <div class="text-[11px] text-gray-400">
+            {{ tx.date }} • {{ tx.note }}
+          </div>
+        </div>
 
-{% for tx in account.transactions %}
+        <div class="flex flex-col items-end gap-1 shrink-0">
+          <div class="txn-amount {% if tx.amount < 0 %}txn-neg{% else %}txn-pos{% endif %}">
+            {% if tx.amount < 0 %}-{% endif %}${{ "{:,.2f}".format(tx.amount|abs) }}
+          </div>
+          <div class="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
+            Bal: ${{ "{:,.2f}".format(tx.running_balance) }}
+          </div>
+        </div>
 
-<div class="card">
-
-    <div>
-        <b>{{ tx.category }}</b>
-
-        <span class="amount {% if tx.amount < 0 %}neg{% else %}pos{% endif %}">
-            ${{ "{:,.2f}".format(tx.amount) }}
-        </span>
+      </div>
+      
+      {% endfor %}
     </div>
 
-    <div>{{ tx.description }}</div>
-    <small>{{ tx.date }} • {{ tx.note }}</small>
+    <!-- Back Button -->
+    <a href="{{ url_for('dashboard') }}" class="bank-btn">
+      ← Back to Dashboard
+    </a>
 
-    <br>
-    <small>Balance: ${{ "{:,.2f}".format(tx.running_balance) }}</small>
-
-</div>
-
-{% endfor %}
-
+  </div>
 </div>
 
 </body>
