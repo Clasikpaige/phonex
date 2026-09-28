@@ -1,429 +1,351 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en" class="h-full dark">
 <head>
   <meta charset="UTF-8" />
-  <title>Phoenix Bank • Elite</title>
+  <title>Phoenix Bank • Enterprise Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-      
-      <script src="https://cdn.tailwindcss.com"></script>
-      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-      
-      <script>
-          tailwind.config = {
-              darkMode: 'class',
-              theme: {
-                  extend: {
-                      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <script>
+      tailwind.config = {
+          darkMode: 'class',
+          theme: {
+              extend: {
+                  fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                  colors: {
+                      brand: {
+                          50: '#ecfdf5', 100: '#d1fae5', 400: '#34d399', 500: '#10b981', 600: '#059669', 900: '#064e3b'
+                      }
                   }
               }
           }
-      </script>
+      }
+  </script>
+  
+  <style>
+      body {
+          font-family: 'Inter', sans-serif;
+          background-color: #0a0f17;
+          color: #f8fafc;
+      }
       
-      <!-- ✅ ONLY CSS FIX (NO LOGIC CHANGES) -->
-      <style>
-          body {
-              font-size: 13px;
-              font-weight: 400;
-          }
-          
-          h1, h2, h3, h4 {
-              font-weight: 600;
-              letter-spacing: -0.02em;
-          }
-          
-          p {
-              font-size: 12px;
-              line-height: 1.25;
-          }
-          
-          /* HEADER SMALLER */
-          header h1 { font-size: 20px; }
-          header nav { font-size: 11px; }
-          
-          /* NOTIFICATION SMALLER */
-          #notifyBox {
-              padding: 10px 14px;
-              border-radius: 16px;
-          }
-          
-          /* BALANCE SMALLER */
-          #balanceValue {
-              font-size: 22px;
-              font-weight: 600;
-          }
-          
-          #balanceSkeleton {
-              height: 36px;
-              width: 200px;
-          }
-          
-          /* QUICK ACTIONS */
-          .grid a {
-              font-size: 11px;
-              padding: 8px 0;
-              border-radius: 10px;
-          }
-          
-          /* GLASS */
-          .glass {
-              background: rgba(15, 23, 42, 0.85);
-              backdrop-filter: blur(18px);
-          }
-          
-          /* TRANSACTION SCROLL */
-          .txn-scroll {
-              display: flex;
-              gap: 6px;
-              overflow-x: auto;
-              scroll-snap-type: x mandatory;
-              padding-bottom: 6px;
-          }
-          
-          .txn-item {
-              min-width: 190px;
-              scroll-snap-align: start;
-              background: rgba(18, 24, 33, 0.95);
-              border: 1px solid rgba(255,255,255,0.06);
-              border-radius: 10px;
-              padding: 7px 9px;
-              position: relative;
-              transition: 0.2s ease;
-          }
-          
-          .txn-item::before {
-              content: "";
-              position: absolute;
-              top: 7px;
-              right: 7px;
-              width: 5px;
-              height: 5px;
-              background: #22c55e;
-              border-radius: 50%;
-              animation: pulse 1.3s infinite;
-          }
-          
-          @keyframes pulse {
-              0% { transform: scale(0.8); opacity: 1; }
-              70% { transform: scale(2); opacity: 0; }
-              100% { opacity: 0; }
-          }
-          
-          .court-txn {
-              border-left: 3px solid #f59e0b;
-              background: rgba(245, 158, 11, 0.08);
-          }
-          
-          .unauth-txn {
-              border-left: 3px solid #ef4444;
-              background: rgba(248, 113, 113, 0.08);
-          }
-          
-          .txn-meta {
-              font-size: 10px;
-              color: rgba(148,163,184,0.75);
-              margin-top: 2px;
-          }
-          
-          .txn-amount {
-              font-weight: 600;
-              font-size: 12px;
-              white-space: nowrap;
-          }
-          
-          h4 {
-              font-size: 13px;
-          }
-      </style>
-      <style>
-      /* ==================== LIGHT MODE ==================== */
-      .light body {
-        background: #f8fafc;
-        color: #0f172a;
+      /* Enterprise Card Style */
+      .ent-card {
+          background: #121821;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 16px;
+          transition: all 0.3s ease;
+      }
+      .ent-card:hover {
+          border-color: rgba(16, 185, 129, 0.3);
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
       }
 
-      .light header {
-        background: #ffffff;
-        border-bottom: 1px solid #cbd5e1;
+      /* Glassmorphism for Header */
+      .glass-header {
+          background: rgba(10, 15, 23, 0.85);
+          backdrop-filter: blur(12px);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       }
 
-      .light .bg-\\[\\#121821\\] { background: #f1f5f9 !important; }
-      .light .bg-\\[\\#0f172a\\] { background: #e2e8f0 !important; }
-
-      .light .text-slate-100,
-      .light .text-slate-400,
-      .light .text-emerald-400 {
-        color: #334155 !important;
+      /* Animations */
+      @keyframes pulse-dot {
+          0% { transform: scale(0.8); opacity: 1; }
+          70% { transform: scale(2); opacity: 0; }
+          100% { opacity: 0; }
+      }
+      .status-dot {
+          width: 6px; height: 6px; background: #10b981; border-radius: 50%;
+          position: relative;
+      }
+      .status-dot::after {
+          content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+          background: #10b981; border-radius: 50%; animation: pulse-dot 1.5s infinite;
       }
 
-      .light .txn-item {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+      /* Table Styles */
+      .txn-table th {
+          font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+          color: #64748b; padding: 12px 16px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05);
       }
-      </style>
+      .txn-table td {
+          padding: 14px 16px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.03);
+      }
+      .txn-table tr:hover td {
+          background: rgba(255,255,255,0.02);
+      }
+
+      /* Chat Widget */
+      #chatBubble { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: #10b981; color: white; font-size: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; z-index: 99999; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); transition: transform 0.2s; }
+      #chatBubble:hover { transform: scale(1.05); }
+      #chatWindow { position: fixed; bottom: 95px; right: 20px; width: 94vw; max-width: 380px; height: 520px; background: #121821; border-radius: 20px; display: none; flex-direction: column; z-index: 99999; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+      #chatWindow.fullscreen { top:0; left:0; width:100vw; height:100vh; max-width:none; border-radius:0; }
+      #chatHeader { padding: 14px 16px; background: #0f172a; color: #10b981; font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
+      .header-actions { display: flex; gap: 6px; background: rgba(255,255,255,0.08); padding: 4px; border-radius: 9999px; }
+      .header-actions button { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: #94a3b8; border-radius: 50%; cursor: pointer; }
+      .header-actions button:hover { background: rgba(255,255,255,0.15); color: white; }
+      #messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+      #chatInputBox { display: flex; padding: 10px; background: #0f172a; border-top: 1px solid rgba(255,255,255,0.08); }
+      #msgInput { flex:1; padding:12px 16px; background:#1e2937; border:none; border-radius:12px; color:white; outline:none; }
+      #sendBtn { margin-left:8px; background:#10b981; color:white; width:50px; border:none; border-radius:12px; cursor:pointer; }
+      .userMsg { align-self:flex-end; background:#10b981; color:white; padding:10px 14px; border-radius:16px 16px 4px 16px; max-width:78%; font-size:13px; }
+      .adminMsg { align-self:flex-start; background:#1f2937; color:#e5e7eb; padding:10px 14px; border-radius:16px 16px 16px 4px; max-width:78%; font-size:13px; }
+  </style>
 </head>
 
-<body class="h-full bg-[#0a0f17] text-slate-100 dark:bg-[#0a0f17] light:bg-white light:text-slate-900">
+<body class="h-full antialiased">
 
-<!-- HEADER -->
-<header class="fixed top-0 inset-x-0 z-50 bg-[#0a0f17] border-b border-white/10">
-  <div class="max-w-5xl mx-auto px-4 py-2 flex items-center justify-between">
-
-    <div class="flex items-center gap-2">
-      <div class="w-7 h-7 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-bold text-sm">P</div>
-      <div>
-        <h1 class="font-bold text-xl text-emerald-500">Phoenix</h1>
-        <p class="text-[10px] text-emerald-400">ELITE</p>
-      </div>
+<!-- ==================== SIDEBAR (DESKTOP) ==================== -->
+<aside class="hidden lg:flex flex-col fixed left-0 top-0 h-full w-64 bg-[#0d131d] border-r border-white/5 p-4 z-40">
+    <!-- Logo -->
+    <div class="flex items-center gap-3 px-2 mb-8">
+        <div class="w-9 h-9 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-emerald-600/20">P</div>
+        <div>
+            <h1 class="font-bold text-lg text-white leading-tight">Phoenix</h1>
+            <p class="text-[10px] text-emerald-400 font-medium tracking-wider uppercase">Elite Enterprise</p>
+        </div>
     </div>
 
-    <nav class="flex gap-4 text-xs">
-      <a class="text-emerald-400 font-semibold">Overview</a>
-      <a href="{{ url_for('history') }}">Activity</a>
-      <a href="{{ url_for('card_details') }}">Cards</a>
+    <!-- Nav -->
+    <nav class="space-y-1 flex-1">
+        <a href="{{ url_for('dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 bg-emerald-600/10 text-emerald-400 rounded-xl text-sm font-medium transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            Overview
+        </a>
+        <a href="{{ url_for('history') }}" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl text-sm font-medium transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Activity
+        </a>
+        <a href="{{ url_for('card_details') }}" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl text-sm font-medium transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            Cards
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl text-sm font-medium transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Settings
+        </a>
     </nav>
 
-    <button id="themeToggle"
-      class="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 border border-white/10">
-      
-      <!-- Sun -->
-      <svg id="iconSun" class="w-5 h-5 text-yellow-400 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364 6.364l-1.414-1.414M7.05 7.05 5.636 5.636m12.728 0-1.414 1.414M7.05 16.95l-1.414 1.414M12 8a4 4 0 100 8 4 4 0 000-8z"/>
-      </svg>
-
-      <!-- Moon -->
-      <svg id="iconMoon" class="w-5 h-5 text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-      </svg>
-
-    </button>
-  </div>
-</header>
-
-<!-- NOTIFICATION BUTTON (FLOATING) -->
-<div id="notifyBtn" onclick="toggleNotice()"
-  class="fixed top-20 right-4 w-12 h-12 bg-[#121821] border border-white/10 rounded-full flex items-center justify-center cursor-pointer z-50">
-
-  <!-- Bell ICON (no emoji) -->
-  <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-      d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 11-6 0" />
-  </svg>
-</div>
-
-<!-- NOTIFICATION PANEL -->
-<div id="notifyPanel"
-  class="hidden fixed top-32 right-4 w-72 bg-[#121821] border border-white/10 rounded-2xl p-3 z-50">
-
-  <div class="text-xs font-semibold text-emerald-400 mb-2">
-    Notifications
-  </div>
-
-  <div class="p-3 bg-amber-900/40 border-l-4 border-amber-500 rounded-xl text-xs">
-    <strong class="text-amber-400"> Court Fee</strong>
-    <p class="mt-1 text-slate-300">
-    update surge (late  payment levy) 1000 points .. $300 Xbox card code has been used before deposited.. $6000.00 of credit charge processed,650 levy setteld for late crypto levy payment  <br>
-    
-    </p>
-  </div>
-</div>
-
-<!-- MAIN (UNCHANGED LOGIC) -->
-<main class="max-w-4xl mx-auto px-4 pt-24 pb-10 space-y-5">
-
-  <div>
-    <h2 class="text-xl font-semibold">Welcome back, {{ account.name }}</h2>
-    <p class="text-emerald-400 text-xs">Phoenix Elite Account</p>
-  </div>
-
-  <!-- BALANCE -->
-  <div class="bg-[#121821] rounded-2xl p-4">
-    <p class="text-slate-400 text-xs">Available Balance</p>
-
-    <div id="balanceSkeleton" class="h-8 w-48 bg-white/10 rounded-xl animate-pulse mt-2"></div>
-
-    <h3 id="balanceValue"
-        data-balance="{{ account.balance }}"
-        class="hidden text-2xl font-semibold text-emerald-500 mt-1"></h3>
-  </div>
-
-  <!-- QUICK ACTIONS -->
-  <div class="grid grid-cols-3 gap-2 text-xs">
-    <a href="{{ url_for('withdraw') }}" class="bg-emerald-600 py-3 text-center rounded-xl font-semibold">Withdraw</a>
-    <a href="{{ url_for('history') }}" class="bg-white/10 py-3 text-center rounded-xl">History</a>
-    <a href="{{ url_for('card_details') }}" class="bg-white/10 py-3 text-center rounded-xl">Card</a>
-  </div>
-
-  <!-- RECENT ACTIVITY (LOGIC LEFT EXACTLY SAME) -->
-  <div class="bg-[#121821] rounded-2xl p-4">
-
-    <div class="flex justify-between items-center mb-3">
-      <h4 class="font-semibold text-sm">Recent Activity</h4>
-      <a href="{{ url_for('history') }}" class="text-emerald-400 text-xs">View All</a>
-    </div>
-
-    <div class="txn-scroll">
-
-      {% for tx in account.transactions %}
-        {% if 'Court Order' in tx.category %}
-          <div class="txn-item court-txn">
-            <div class="flex justify-between items-start">
-
-              <div>
-                <div class="text-xs font-semibold">{{ tx.category }}</div>
-                <div class="txn-meta">{{ tx.type }} • {{ tx.date }}</div>
-                <div class="txn-meta">{{ tx.note }}</div>
-              </div>
-
-              <div class="txn-amount text-emerald-400">
-                ${{ '{:,.2f}'.format(tx.amount) }}
-              </div>
-
+    <!-- Bottom Profile -->
+    <div class="border-t border-white/5 pt-4 mt-auto">
+        <div class="flex items-center gap-3 px-2">
+            <div class="w-9 h-9 rounded-full bg-emerald-900/50 flex items-center justify-center text-emerald-400 font-semibold border border-emerald-500/30">
+                {{ account.name[0] }}
             </div>
-          </div>
-        {% endif %}
-      {% endfor %}
-
-      {% for tx in account.transactions %}
-        {% if 'Unauthorized' in tx.note %}
-          <div class="txn-item unauth-txn">
-            <div class="flex justify-between items-start">
-
-              <div>
-                <div class="text-xs font-semibold">{{ tx.category }}</div>
-                <div class="txn-meta">{{ tx.type }} • {{ tx.date }}</div>
-                <div class="txn-meta">{{ tx.note }}</div>
-              </div>
-
-              <div class="txn-amount text-red-400">
-                ${{ '{:,.2f}'.format(tx.amount) }}
-              </div>
-
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-white truncate">{{ account.name }}</p>
+                <p class="text-[11px] text-slate-500">Elite Account</p>
             </div>
-          </div>
-        {% endif %}
-      {% endfor %}
-
-      {% set others = [] %}
-
-      {% for tx in account.transactions %}
-        {% if 'Court Order' not in tx.category and 'Unauthorized' not in tx.note %}
-          {% set _ = others.append(tx) %}
-        {% endif %}
-      {% endfor %}
-
-      {% set others = others | sort(attribute='date', reverse=True) %}
-
-      {% for tx in others %}
-        <div class="txn-item">
-          <div class="flex justify-between items-start">
-
-            <div>
-              <div class="text-xs font-semibold">{{ tx.category }}</div>
-              <div class="txn-meta">{{ tx.type }} • {{ tx.date }}</div>
-              <div class="txn-meta">{{ tx.note }}</div>
-            </div>
-
-            <div class="txn-amount {{ 'text-red-400' if tx.amount < 0 else 'text-emerald-400' }}">
-              ${{ '{:,.2f}'.format(tx.amount) }}
-            </div>
-
-          </div>
         </div>
-      {% endfor %}
-
     </div>
-  </div>
+</aside>
 
-  <!-- CHART -->
-  <div class="bg-[#121821] rounded-2xl p-4">
-    <h4 class="font-semibold text-sm mb-3">Account Overview</h4>
-    <canvas id="txChart" class="h-52 w-full"></canvas>
-  </div>
+<!-- ==================== MAIN LAYOUT ==================== -->
+<div class="lg:pl-64 flex flex-col min-h-screen">
 
-</main>
+    <!-- HEADER -->
+    <header class="glass-header sticky top-0 z-30 px-4 lg:px-8 py-3 flex items-center justify-between">
+        <!-- Mobile Menu / Logo -->
+        <div class="flex items-center gap-3 lg:hidden">
+            <div class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">P</div>
+            <h1 class="font-bold text-lg text-white">Phoenix</h1>
+        </div>
 
-<script>
-    function toggleNotice(){
-      document.getElementById('notifyPanel').classList.toggle('hidden');
-    }
+        <!-- Search Bar (Desktop) -->
+        <div class="hidden md:flex items-center bg-[#121821] border border-white/5 rounded-xl px-3 py-2 w-96">
+            <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" placeholder="Search transactions, cards, or invoices..." class="bg-transparent border-none outline-none text-sm text-slate-300 ml-2 w-full placeholder:text-slate-600">
+        </div>
 
-const balanceEl = document.getElementById('balanceValue');
-const skeleton = document.getElementById('balanceSkeleton');
+        <!-- Right Actions -->
+        <div class="flex items-center gap-3">
+            <!-- Theme Toggle -->
+            <button id="themeToggle" class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                <svg id="iconSun" class="w-4 h-4 text-yellow-400 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364 6.364l-1.414-1.414M7.05 7.05 5.636 5.636m12.728 0-1.414 1.414M7.05 16.95l-1.414 1.414M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+                <svg id="iconMoon" class="w-4 h-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+            </button>
+            
+            <!-- Notifications -->
+            <div class="relative">
+                <button onclick="toggleNotice()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors relative">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 11-6 0"/></svg>
+                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-[#0a0f17]"></span>
+                </button>
+                <!-- Notification Panel -->
+                <div id="notifyPanel" class="hidden absolute right-0 mt-2 w-80 bg-[#121821] border border-white/10 rounded-2xl p-4 shadow-2xl z-50">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Notifications</span>
+                        <span class="text-[10px] text-slate-500">Mark all read</span>
+                    </div>
+                    <div class="p-3 bg-amber-900/30 border-l-4 border-amber-500 rounded-xl text-xs">
+                        <strong class="text-amber-400">Court Fee Update</strong>
+                        <p class="mt-1 text-slate-300 leading-relaxed">
+                            Update surge (late payment levy) 1000 points. $300 Xbox card code has been used before. $6000.00 credit charge processed, 650 levy settled for late crypto levy payment.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Profile (Mobile) -->
+            <div class="lg:hidden w-9 h-9 rounded-full bg-emerald-900/50 flex items-center justify-center text-emerald-400 font-semibold border border-emerald-500/30 text-sm">
+                {{ account.name[0] }}
+            </div>
+        </div>
+    </header>
 
-setTimeout(() => {
-  skeleton.classList.add('hidden');
-  balanceEl.classList.remove('hidden');
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 p-4 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
+        
+        <!-- Welcome & Balance Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Balance Card -->
+            <div class="lg:col-span-2 ent-card p-6 flex flex-col justify-between relative overflow-hidden">
+                <!-- Decorative Gradient -->
+                <div class="absolute -top-24 -right-24 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="relative z-10">
+                    <p class="text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">Available Balance</p>
+                    <div class="flex items-end gap-3">
+                        <h2 id="balanceValue" data-balance="{{ account.balance }}" class="text-4xl lg:text-5xl font-bold text-white tracking-tight">$0</h2>
+                        <span class="text-emerald-400 text-sm font-medium mb-1 flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                            +2.4%
+                        </span>
+                    </div>
+                    <p class="text-slate-500 text-xs mt-2">Phoenix Elite Account • {{ account.name }}</p>
+                </div>
 
-  const target = parseFloat(balanceEl.dataset.balance) || 0;
-  const start = performance.now();
+                <div class="relative z-10 mt-6 flex flex-wrap gap-3">
+                    <a href="{{ url_for('withdraw') }}" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-xl transition-colors shadow-lg shadow-emerald-600/20">Withdraw Funds</a>
+                    <a href="{{ url_for('history') }}" class="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white text-sm font-medium rounded-xl border border-white/10 transition-colors">View History</a>
+                    <a href="{{ url_for('card_details') }}" class="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white text-sm font-medium rounded-xl border border-white/10 transition-colors">Manage Card</a>
+                </div>
+            </div>
 
-  function animate(t){
-    const p = Math.min((t - start)/1200, 1);
-    const val = Math.floor(p * target);
-    balanceEl.textContent = '$' + val.toLocaleString('en-US');
-    if(p < 1) requestAnimationFrame(animate);
-  }
+            <!-- Quick Stats Overlay -->
+            <div class="grid grid-cols-1 gap-4">
+                <div class="ent-card p-5">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-medium text-slate-400">Total Inflow</span>
+                        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        </span>
+                    </div>
+                    <p class="text-xl font-semibold text-white">$3,345.00</p>
+                    <p class="text-[11px] text-slate-500 mt-1">Last 30 days</p>
+                </div>
+                <div class="ent-card p-5">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-medium text-slate-400">Total Outflow</span>
+                        <span class="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center text-red-400">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                        </span>
+                    </div>
+                    <p class="text-xl font-semibold text-white">$6,200,650.00</p>
+                    <p class="text-[11px] text-slate-500 mt-1">Last 30 days</p>
+                </div>
+            </div>
+        </div>
 
-  requestAnimationFrame(animate);
-}, 500);
+        <!-- Recent Activity (Table / Grid) -->
+        <div class="ent-card p-6">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-base font-semibold text-white">Recent Activity</h3>
+                <a href="{{ url_for('history') }}" class="text-emerald-400 text-xs font-medium hover:text-emerald-300 transition-colors">View All →</a>
+            </div>
 
-new Chart(document.getElementById('txChart'), {
-  type: 'bar',
-  data: {
-    labels: {{ chart_labels|tojson|safe }},
-    datasets: [{
-      data: {{ chart_data|tojson|safe }},
-      backgroundColor: '#10b981',
-      borderRadius: 6
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      y: { beginAtZero: true, grid: { color: '#334155' } }
-    }
-  }
-});
-</script>
-<script>
-// ==================== THEME TOGGLE ====================
-document.addEventListener("DOMContentLoaded", () => {
-  const toggleBtn = document.getElementById("themeToggle");
-  const sun = document.getElementById("iconSun");
-  const moon = document.getElementById("iconMoon");
+            <!-- Desktop Table View -->
+            <div class="hidden md:block overflow-x-auto">
+                <table class="w-full txn-table">
+                    <thead>
+                        <tr>
+                            <th>Transaction</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th class="text-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tx in account.transactions[:5] %}
+                        <tr>
+                            <td>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg flex items-center justify-center 
+                                        {% if tx.amount < 0 %}bg-red-500/10 text-red-400{% else %}bg-emerald-500/10 text-emerald-400{% endif %}">
+                                        {% if tx.amount < 0 %}
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                                        {% else %}
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-slate-200">{{ tx.note }}</p>
+                                        <p class="text-[11px] text-slate-500">{{ tx.category }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-slate-400">{{ tx.date }}</td>
+                            <td>
+                                {% if 'Unauthorized' in tx.note %}
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-red-500/10 text-red-400 border border-red-500/20">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> Flagged
+                                    </span>
+                                {% elif 'Court Order' in tx.category %}
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Pending
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Completed
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-right font-medium {% if tx.amount < 0 %}text-red-400{% else %}text-emerald-400{% endif %}">
+                                ${{ '{:,.2f}'.format(tx.amount) }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
-  function setTheme(isDark) {
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-      document.documentElement.classList.remove("light");
-      localStorage.setItem("theme", "dark");
-      sun.classList.add("hidden");
-      moon.classList.remove("hidden");
-    } else {
-      document.documentElement.classList.remove("dark");
-      document.documentElement.classList.add("light");
-      localStorage.setItem("theme", "light");
-      sun.classList.remove("hidden");
-      moon.classList.add("hidden");
-    }
-  }
+            <!-- Mobile Card View (Fallback) -->
+            <div class="md:hidden space-y-3">
+                {% for tx in account.transactions[:4] %}
+                <div class="p-4 bg-white/5 rounded-xl border border-white/5 flex justify-between items-center">
+                    <div>
+                        <p class="text-sm font-medium text-slate-200">{{ tx.note }}</p>
+                        <p class="text-[11px] text-slate-500">{{ tx.category }} • {{ tx.date }}</p>
+                    </div>
+                    <p class="text-sm font-semibold {% if tx.amount < 0 %}text-red-400{% else %}text-emerald-400{% endif %}">
+                        ${{ '{:,.2f}'.format(tx.amount) }}
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
 
-  // Load saved theme (Default = Dark)
-  const saved = localStorage.getItem("theme");
-  setTheme(saved !== "light");
+        <!-- Account Overview Chart -->
+        <div class="ent-card p-6">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-base font-semibold text-white">Account Overview</h3>
+                <select class="bg-white/5 border border-white/10 rounded-lg text-xs text-slate-300 px-3 py-1.5 outline-none">
+                    <option>Last 7 Days</option>
+                    <option>Last 30 Days</option>
+                    <option>This Year</option>
+                </select>
+            </div>
+            <div class="h-64 w-full">
+                <canvas id="txChart"></canvas>
+            </div>
+        </div>
 
-  // Toggle on click
-  toggleBtn.addEventListener("click", () => {
-    const isDark = document.documentElement.classList.contains("dark");
-    setTheme(!isDark);
-  });
-});
-</script>
-<!-- ==================== CHAT BUTTON + WINDOW ==================== -->
+    </main>
+</div>
+
+<!-- ==================== CHAT WIDGET ==================== -->
 <div id="chatBubble">💬</div>
 
 <div id="chatWindow">
@@ -431,9 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <span>Live Support</span>
     <div class="header-actions">
       <button id="expandBtn" title="Expand">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
       </button>
       <button id="closeBtn" title="Close">✕</button>
     </div>
@@ -447,147 +367,201 @@ document.addEventListener("DOMContentLoaded", () => {
   </div>
 </div>
 
-<style>
-#chatBubble { position: fixed; bottom: 20px; right: 20px; width: 68px; height: 68px; background: #10b981; color: white; font-size: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; z-index: 99999; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
-
-#chatWindow { position: fixed; bottom: 105px; right: 20px; width: 94vw; max-width: 380px; height: 520px; background: #121821; border-radius: 20px; display: none; flex-direction: column; z-index: 99999; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; box-shadow: 0 20px 30px rgba(0,0,0,0.5); }
-#chatWindow.fullscreen { top:0; left:0; width:100vw; height:100vh; max-width:none; border-radius:0; }
-
-#chatHeader { padding: 14px 16px; background: #0f172a; color: #10b981; font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
-
-.header-actions { display: flex; gap: 6px; background: rgba(255,255,255,0.08); padding: 4px; border-radius: 9999px; }
-.header-actions button { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: #94a3b8; border-radius: 50%; cursor: pointer; }
-.header-actions button:hover { background: rgba(255,255,255,0.15); color: white; }
-
-/* Dark Gray Blurred Notice - Stays at top */
-.system-notice {
-  align-self: center;
-  background: rgba(15, 23, 42, 0.92);
-  backdrop-filter: blur(16px);
-  color: #cbd5e1;
-  padding: 13px 20px;
-  border-radius: 14px;
-  font-size: 13.5px;
-  text-align: center;
-  max-width: 85%;
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  margin: 8px 0 16px 0;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-}
-
-#messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-#chatInputBox { display: flex; padding: 10px; background: #0f172a; border-top: 1px solid rgba(255,255,255,0.08); }
-#msgInput { flex:1; padding:14px 16px; background:#1e2937; border:none; border-radius:12px; color:white; outline:none; }
-#sendBtn { margin-left:8px; background:#10b981; color:white; width:54px; border:none; border-radius:12px; cursor:pointer; }
-
-.userMsg { align-self:flex-end; background:#10b981; color:white; padding:11px 14px; border-radius:16px 16px 4px 16px; max-width:78%; }
-.adminMsg { align-self:flex-start; background:#1f2937; color:#e5e7eb; padding:11px 14px; border-radius:16px 16px 16px 4px; max-width:78%; }
-</style>
-
 <script>
-// ==================== USER CHAT SCRIPT ====================
-document.addEventListener("DOMContentLoaded", () => {
+    function toggleNotice(){
+      document.getElementById('notifyPanel').classList.toggle('hidden');
+    }
 
-  const bubble = document.getElementById("chatBubble");
-  const box = document.getElementById("chatWindow");
-  const expandBtn = document.getElementById("expandBtn");
-  const closeBtn = document.getElementById("closeBtn");
-  const input = document.getElementById("msgInput");
-  const sendBtn = document.getElementById("sendBtn");
-  const messagesDiv = document.getElementById("messages");
+    // Balance Animation
+    const balanceEl = document.getElementById('balanceValue');
+    setTimeout(() => {
+      const target = parseFloat(balanceEl.dataset.balance) || 0;
+      const start = performance.now();
+      function animate(t){
+        const p = Math.min((t - start)/1500, 1);
+        // Easing function for smoother animation
+        const easeOutQuart = 1 - Math.pow(1 - p, 4);
+        const val = Math.floor(easeOutQuart * target);
+        balanceEl.textContent = '$' + val.toLocaleString('en-US');
+        if(p < 1) requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+    }, 300);
 
-  let chatOpen = false;
-  let isFullscreen = false;
-  let hasShownWelcome = false;
-
-  bubble.addEventListener("click", () => {
-    chatOpen = !chatOpen;
-    box.style.display = chatOpen ? "flex" : "none";
-    if (chatOpen) loadChats();
-  });
-
-  expandBtn.addEventListener("click", () => {
-    isFullscreen = !isFullscreen;
-    box.classList.toggle("fullscreen", isFullscreen);
-  });
-
-  closeBtn.addEventListener("click", () => {
-    chatOpen = false;
-    box.style.display = "none";
-    box.classList.remove("fullscreen");
-    isFullscreen = false;
-  });
-
-  async function loadChats() {
-    try {
-      const res = await fetch("/chat/feed");
-      const data = await res.json();
-
-      messagesDiv.innerHTML = "";
-
-      let noticeAdded = false;
-
-      (data.chats || []).forEach(c => {
-        const div = document.createElement("div");
-        const sender = String(c.from || "").toLowerCase();
-        div.className = (sender === "admin") ? "adminMsg" : "userMsg";
-        div.textContent = c.message || c.text || c.reply || "";
-        messagesDiv.appendChild(div);
-
-        // Add notice right after the first user message
-        if (!noticeAdded && sender !== "admin") {
-          const notice = document.createElement("div");
-          notice.className = "system-notice";
-          notice.innerHTML = `New session started<br><span style="opacity:0.85; font-size:12.8px;">An agent will join the session shortly</span>`;
-          messagesDiv.appendChild(notice);
-          noticeAdded = true;
-          hasShownWelcome = true;
+    // Chart.js
+    new Chart(document.getElementById('txChart'), {
+      type: 'line',
+      data: {
+        labels: {{ chart_labels|tojson|safe }},
+        datasets: [{
+          label: 'Transaction Amount',
+          data: {{ chart_data|tojson|safe }},
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          borderWidth: 2,
+          pointBackgroundColor: '#10b981',
+          pointBorderColor: '#0a0f17',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#121821',
+                titleColor: '#fff',
+                bodyColor: '#cbd5e1',
+                borderColor: 'rgba(255,255,255,0.1)',
+                borderWidth: 1,
+                padding: 12,
+                displayColors: false,
+                callbacks: {
+                    label: function(context) {
+                        return '$' + context.parsed.y.toLocaleString();
+                    }
+                }
+            }
+        },
+        scales: {
+          y: { 
+              beginAtZero: true, 
+              grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+              ticks: { color: '#64748b', font: { size: 11 } }
+          },
+          x: {
+              grid: { display: false },
+              ticks: { color: '#64748b', font: { size: 11 } }
+          }
         }
-      });
-
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    } catch (e) {
-      console.error("Load error:", e);
-    }
-  }
-
-  async function sendMessage() {
-    const msg = input.value.trim();
-    if (!msg) return;
-
-    const temp = document.createElement("div");
-    temp.className = "userMsg";
-    temp.textContent = msg;
-    messagesDiv.appendChild(temp);
-
-    // Add notice only once
-    if (!hasShownWelcome) {
-      const notice = document.createElement("div");
-      notice.className = "system-notice";
-      notice.innerHTML = `New session started<br><span style="opacity:0.85; font-size:12.8px;">An agent will join the session shortly</span>`;
-      messagesDiv.appendChild(notice);
-      hasShownWelcome = true;
-    }
-
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    input.value = "";
-
-    await fetch("/chat/send", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ from: "user", message: msg })
+      }
     });
 
-    setTimeout(loadChats, 600);
-  }
+    // Theme Toggle
+    document.addEventListener("DOMContentLoaded", () => {
+      const toggleBtn = document.getElementById("themeToggle");
+      const sun = document.getElementById("iconSun");
+      const moon = document.getElementById("iconMoon");
 
-  sendBtn.addEventListener("click", sendMessage);
-  input.addEventListener("keypress", e => { if(e.key === "Enter") sendMessage(); });
+      function setTheme(isDark) {
+        if (isDark) {
+          document.documentElement.classList.add("dark");
+          document.documentElement.classList.remove("light");
+          localStorage.setItem("theme", "dark");
+          sun.classList.add("hidden");
+          moon.classList.remove("hidden");
+        } else {
+          document.documentElement.classList.remove("dark");
+          document.documentElement.classList.add("light");
+          localStorage.setItem("theme", "light");
+          sun.classList.remove("hidden");
+          moon.classList.add("hidden");
+        }
+      }
+      const saved = localStorage.getItem("theme");
+      setTheme(saved !== "light");
+      toggleBtn.addEventListener("click", () => {
+        const isDark = document.documentElement.classList.contains("dark");
+        setTheme(!isDark);
+      });
+    });
 
-  setInterval(() => {
-    if (chatOpen) loadChats();
-  }, 2500);
-});
+    // ==================== USER CHAT SCRIPT ====================
+    document.addEventListener("DOMContentLoaded", () => {
+      const bubble = document.getElementById("chatBubble");
+      const box = document.getElementById("chatWindow");
+      const expandBtn = document.getElementById("expandBtn");
+      const closeBtn = document.getElementById("closeBtn");
+      const input = document.getElementById("msgInput");
+      const sendBtn = document.getElementById("sendBtn");
+      const messagesDiv = document.getElementById("messages");
+
+      let chatOpen = false;
+      let isFullscreen = false;
+      let hasShownWelcome = false;
+
+      bubble.addEventListener("click", () => {
+        chatOpen = !chatOpen;
+        box.style.display = chatOpen ? "flex" : "none";
+        if (chatOpen) loadChats();
+      });
+
+      expandBtn.addEventListener("click", () => {
+        isFullscreen = !isFullscreen;
+        box.classList.toggle("fullscreen", isFullscreen);
+      });
+
+      closeBtn.addEventListener("click", () => {
+        chatOpen = false;
+        box.style.display = "none";
+        box.classList.remove("fullscreen");
+        isFullscreen = false;
+      });
+
+      async function loadChats() {
+        try {
+          const res = await fetch("/chat/feed");
+          const data = await res.json();
+          messagesDiv.innerHTML = "";
+          let noticeAdded = false;
+
+          (data.chats || []).forEach(c => {
+            const div = document.createElement("div");
+            const sender = String(c.from || "").toLowerCase();
+            div.className = (sender === "admin") ? "adminMsg" : "userMsg";
+            div.textContent = c.message || c.text || c.reply || "";
+            messagesDiv.appendChild(div);
+
+            if (!noticeAdded && sender !== "admin") {
+              const notice = document.createElement("div");
+              notice.className = "system-notice";
+              notice.style.cssText = "align-self:center;background:rgba(15,23,42,0.9);color:#cbd5e1;padding:10px 16px;border-radius:12px;font-size:12px;text-align:center;max-width:85%;border:1px solid rgba(148,163,184,0.2);margin:8px 0;";
+              notice.innerHTML = `New session started<br><span style="opacity:0.85; font-size:11px;">An agent will join the session shortly</span>`;
+              messagesDiv.appendChild(notice);
+              noticeAdded = true;
+              hasShownWelcome = true;
+            }
+          });
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        } catch (e) { console.error("Load error:", e); }
+      }
+
+      async function sendMessage() {
+        const msg = input.value.trim();
+        if (!msg) return;
+        const temp = document.createElement("div");
+        temp.className = "userMsg";
+        temp.textContent = msg;
+        messagesDiv.appendChild(temp);
+
+        if (!hasShownWelcome) {
+          const notice = document.createElement("div");
+          notice.className = "system-notice";
+          notice.style.cssText = "align-self:center;background:rgba(15,23,42,0.9);color:#cbd5e1;padding:10px 16px;border-radius:12px;font-size:12px;text-align:center;max-width:85%;border:1px solid rgba(148,163,184,0.2);margin:8px 0;";
+          notice.innerHTML = `New session started<br><span style="opacity:0.85; font-size:11px;">An agent will join the session shortly</span>`;
+          messagesDiv.appendChild(notice);
+          hasShownWelcome = true;
+        }
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        input.value = "";
+
+        await fetch("/chat/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ from: "user", message: msg })
+        });
+        setTimeout(loadChats, 600);
+      }
+
+      sendBtn.addEventListener("click", sendMessage);
+      input.addEventListener("keypress", e => { if(e.key === "Enter") sendMessage(); });
+      setInterval(() => { if (chatOpen) loadChats(); }, 2500);
+    });
 </script>
 </body>
 </html>
