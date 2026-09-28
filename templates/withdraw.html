@@ -1,226 +1,418 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full dark">
 <head>
-<meta charset="UTF-8">
-<title>Withdraw | MyBank</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Withdraw | Phoenix Bank</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+      tailwind.config = {
+          darkMode: 'class',
+          theme: {
+              extend: {
+                  fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                  colors: {
+                      brand: { 50: '#ecfdf5', 100: '#d1fae5', 400: '#34d399', 500: '#10b981', 600: '#059669', 900: '#064e3b' }
+                  }
+              }
+          }
+      }
+  </script>
+  
+  <style>
+      body {
+          font-family: 'Inter', sans-serif;
+          background-color: #0a0f17;
+          color: #f8fafc;
+      }
+      
+      /* Enterprise Card Style */
+      .ent-card {
+          background: #121821;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 16px;
+          transition: all 0.3s ease;
+      }
 
-<!-- Tailwind + Flowbite for modals -->
-<script src="https://cdn.tailwindcss.com"></script>
+      /* Glassmorphism for Header */
+      .glass-header {
+          background: rgba(10, 15, 23, 0.85);
+          backdrop-filter: blur(12px);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
 
-<style>
-/* ---------- Base ---------- */
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
-  background: linear-gradient(180deg, #f0f4f8 0%, #d9e2ec 100%);
-  color: #1f2937;
-}
+      /* Form Inputs matching Enterprise Theme */
+      .ent-input {
+          width: 100%;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 12px;
+          padding: 14px 16px;
+          font-size: 0.95rem;
+          color: #f8fafc;
+          transition: all 0.25s ease;
+      }
+      .ent-input:focus {
+          outline: none;
+          border-color: #10b981;
+          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+      }
+      .ent-input:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+      }
+      .ent-label {
+          font-size: 0.8rem;
+          font-weight: 500;
+          color: #94a3b8;
+          margin-bottom: 6px;
+          display: block;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+      }
 
-/* ---------- Main Panel ---------- */
-.bank-shell {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
+      /* Enterprise Button */
+      .ent-btn {
+          width: 100%;
+          padding: 14px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #059669, #10b981);
+          color: white;
+          font-weight: 600;
+          border: none;
+          transition: transform .15s ease, box-shadow .15s ease;
+          cursor: pointer;
+      }
+      .ent-btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 12px 20px rgba(16, 185, 129, 0.25);
+      }
+      .ent-btn:disabled {
+          background: rgba(255, 255, 255, 0.1);
+          color: #64748b;
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+      }
 
-.bank-panel {
-  width: 100%;
-  max-width: 500px;
-  background: rgba(255,255,255,0.75);
-  backdrop-filter: blur(12px);
-  border-radius: 24px;
-  padding: 32px 28px;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.08);
-  animation: fadeUp .6s ease;
-}
+      /* Modal Overlay */
+      .modal-overlay {
+          position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+          display: flex; justify-content: center; align-items: center; z-index: 9999;
+          opacity: 0; pointer-events: none; transition: all .3s ease;
+      }
+      .modal-overlay.show { opacity: 1; pointer-events: auto; }
+      .modal-content {
+          background: #121821; border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 20px; padding: 28px 24px; max-width: 420px; text-align: center;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      }
+      .modal-btn {
+          padding: 12px 20px; border-radius: 12px; font-weight: 500; border: none; cursor: pointer; transition: background 0.2s;
+      }
 
-/* ---------- Header ---------- */
-.bank-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-/* ---------- Field Group ---------- */
-.field-group {
-  margin-bottom: 20px;
-  animation: fadeUp .6s ease;
-}
-
-label {
-  font-size: .85rem;
-  color: #4b5563;
-  margin-bottom: 6px;
-  display: block;
-}
-
-/* ---------- Inputs ---------- */
-input, select {
-  width: 100%;
-  border: 1px solid #d1d5db;
-  border-radius: 14px;
-  padding: 14px 14px;
-  font-size: .95rem;
-  background: rgba(255,255,255,0.9);
-  transition: all .25s ease;
-}
-
-input:focus, select:focus {
-  outline: none;
-  border-color: #6366f1;
-  background: rgba(255,255,255,1);
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
-}
-
-/* ---------- Button ---------- */
-.bank-btn {
-  width: 100%;
-  padding: 14px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
-  color: white;
-  font-weight: 500;
-  border: none;
-  transition: transform .15s ease, box-shadow .15s ease;
-}
-
-.bank-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 20px rgba(79,70,229,0.3);
-}
-
-/* ---------- Modal ---------- */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(6px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 50;
-  opacity: 0;
-  pointer-events: none;
-  transition: all .3s ease;
-}
-
-.modal-overlay.show {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.modal-content {
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(12px);
-  border-radius: 20px;
-  padding: 28px 24px;
-  max-width: 420px;
-  text-align: center;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-}
-
-.modal-content h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: #b91c1c;
-}
-
-.modal-content p {
-  font-size: .95rem;
-  color: #374151;
-  line-height: 1.5;
-  margin-bottom: 20px;
-}
-
-.modal-btn {
-  padding: 12px 20px;
-  border-radius: 12px;
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-}
-
-.modal-btn-primary {
-  background: #4f46e5;
-  color: white;
-  margin-right: 8px;
-}
-
-.modal-btn-secondary {
-  background: #e5e7eb;
-  color: #1f2937;
-}
-</style>
+      /* Chat Widget */
+      #chatBubble { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: #10b981; color: white; font-size: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; z-index: 99999; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); transition: transform 0.2s; }
+      #chatBubble:hover { transform: scale(1.05); }
+      #chatWindow { position: fixed; bottom: 95px; right: 20px; width: 94vw; max-width: 380px; height: 520px; background: #121821; border-radius: 20px; display: none; flex-direction: column; z-index: 99999; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+      #chatWindow.fullscreen { top:0; left:0; width:100vw; height:100vh; max-width:none; border-radius:0; }
+      #chatHeader { padding: 14px 16px; background: #0f172a; color: #10b981; font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
+      .header-actions { display: flex; gap: 6px; background: rgba(255,255,255,0.08); padding: 4px; border-radius: 9999px; }
+      .header-actions button { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: #94a3b8; border-radius: 50%; cursor: pointer; }
+      .header-actions button:hover { background: rgba(255,255,255,0.15); color: white; }
+      #messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+      #chatInputBox { display: flex; padding: 10px; background: #0f172a; border-top: 1px solid rgba(255,255,255,0.08); }
+      #msgInput { flex:1; padding:12px 16px; background:#1e2937; border:none; border-radius:12px; color:white; outline:none; }
+      #sendBtn { margin-left:8px; background:#10b981; color:white; width:50px; border:none; border-radius:12px; cursor:pointer; }
+      .userMsg { align-self:flex-end; background:#10b981; color:white; padding:10px 14px; border-radius:16px 16px 4px 16px; max-width:78%; font-size:13px; }
+      .adminMsg { align-self:flex-start; background:#1f2937; color:#e5e7eb; padding:10px 14px; border-radius:16px 16px 16px 4px; max-width:78%; font-size:13px; }
+  </style>
 </head>
 
-<body>
+<body class="h-full antialiased">
 
-<div class="bank-shell">
-  <div class="bank-panel">
-
-    <div class="bank-title">
-      Withdrawal — {{ account.name }}
+<!-- ==================== SIDEBAR ==================== -->
+<aside class="hidden lg:flex flex-col fixed left-0 top-0 h-full w-64 bg-[#0d131d] border-r border-white/5 p-4 z-40">
+    <div class="flex items-center gap-3 px-2 mb-8">
+        <div class="w-9 h-9 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-emerald-600/20">P</div>
+        <div>
+            <h1 class="font-bold text-lg text-white leading-tight">Phoenix</h1>
+            <p class="text-[10px] text-emerald-400 font-medium tracking-wider uppercase">Elite Enterprise</p>
+        </div>
     </div>
 
-    <!-- Notification for restricted account -->
-    <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-600 rounded-lg text-sm text-red-700">
-      ⚠️ Your online withdrawal access is temporarily locked due to a suspicious transaction.
-      <br>
-      A <strong>$500 security deposit</strong> is required to unlock online withdrawal.
-      <br>
-      In the meantime, you may only withdraw offline via check or card.
+    <nav class="space-y-1 flex-1">
+        <a href="{{ url_for('dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl text-sm font-medium transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            Overview
+        </a>
+        <a href="{{ url_for('history') }}" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl text-sm font-medium transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Activity
+        </a>
+        <a href="{{ url_for('card_details') }}" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl text-sm font-medium transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            Cards
+        </a>
+        <a href="{{ url_for('withdraw') }}" class="flex items-center gap-3 px-3 py-2.5 bg-emerald-600/10 text-emerald-400 rounded-xl text-sm font-medium transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Withdraw
+        </a>
+    </nav>
+
+    <div class="border-t border-white/5 pt-4 mt-auto">
+        <div class="flex items-center gap-3 px-2">
+            <div class="w-9 h-9 rounded-full bg-emerald-900/50 flex items-center justify-center text-emerald-400 font-semibold border border-emerald-500/30">
+                {{ account.name[0] }}
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-white truncate">{{ account.name }}</p>
+                <p class="text-[11px] text-slate-500">Elite Account</p>
+            </div>
+        </div>
     </div>
+</aside>
 
-    <!-- Amount -->
-    <div class="field-group">
-      <label>Amount</label>
-      <input type="number" placeholder="$0.00" id="amount" disabled>
+<!-- ==================== MAIN LAYOUT ==================== -->
+<div class="lg:pl-64 flex flex-col min-h-screen">
+
+    <!-- HEADER -->
+    <header class="glass-header sticky top-0 z-30 px-4 lg:px-8 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3 lg:hidden">
+            <div class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">P</div>
+            <h1 class="font-bold text-lg text-white">Phoenix</h1>
+        </div>
+        <div class="hidden md:flex items-center bg-[#121821] border border-white/5 rounded-xl px-3 py-2 w-96">
+            <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" placeholder="Search..." class="bg-transparent border-none outline-none text-sm text-slate-300 ml-2 w-full placeholder:text-slate-600">
+        </div>
+        <div class="flex items-center gap-3">
+            <button id="themeToggle" class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                <svg id="iconSun" class="w-4 h-4 text-yellow-400 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364 6.364l-1.414-1.414M7.05 7.05 5.636 5.636m12.728 0-1.414 1.414M7.05 16.95l-1.414 1.414M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+                <svg id="iconMoon" class="w-4 h-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+            </button>
+            <div class="lg:hidden w-9 h-9 rounded-full bg-emerald-900/50 flex items-center justify-center text-emerald-400 font-semibold border border-emerald-500/30 text-sm">
+                {{ account.name[0] }}
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 p-4 lg:p-8 max-w-4xl mx-auto w-full">
+        
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-white">Withdraw Funds</h2>
+            <p class="text-slate-400 text-sm mt-1">Securely transfer funds from your Phoenix Elite Account.</p>
+        </div>
+
+        <!-- ALERT BANNER -->
+        <div class="mb-6 p-5 bg-red-500/10 border border-red-500/20 rounded-2xl flex flex-col gap-2">
+            <div class="flex items-center gap-2 text-red-400 font-semibold text-sm">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                Security Hold Active
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed">
+                Your online withdrawal access is temporarily locked due to a suspicious transaction. 
+                A <strong class="text-white">$500 security deposit</strong> is required to unlock online withdrawal. 
+                In the meantime, you may only withdraw offline via check or card.
+            </p>
+        </div>
+
+        <!-- WITHDRAWAL FORM CARD -->
+        <div class="ent-card p-6 lg:p-8">
+            <form method="POST" action="{{ url_for('withdraw') }}">
+                
+                <div class="mb-5">
+                    <label class="ent-label">Amount</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">$</span>
+                        <input type="number" name="amount" id="amount" class="ent-input pl-8" placeholder="0.00" disabled>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="ent-label">Withdrawal Method</label>
+                    <select name="method" id="methodSelect" class="ent-input appearance-none" disabled>
+                        <option value="" selected>Offline Only (Check or Card)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="ent-btn" disabled>
+                    Withdraw (Online Disabled)
+                </button>
+
+            </form>
+        </div>
+
+    </main>
+</div>
+
+<!-- ==================== MODAL ==================== -->
+<div id="modalOverlay" class="modal-overlay">
+  <div class="modal-content">
+    <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 text-red-500">
+        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
     </div>
-
-    <!-- Method -->
-    <div class="field-group">
-      <label>Withdrawal Method</label>
-      <select id="methodSelect" disabled>
-        <option value="" selected>Offline Only</option>
-      </select>
-    </div>
-
-    <button class="bank-btn" disabled>
-      Withdraw (Online Disabled)
-    </button>
-
+    <h2 class="text-xl font-bold text-white mb-3">Security Hold Active</h2>
+    <p class="text-sm text-slate-400 leading-relaxed mb-6">
+      A wire transfer to an unauthorized account was detected and marked as a security risk.
+      <br><br>
+      Online withdrawals are disabled until a <strong class="text-white">$500 security deposit</strong> is paid.
+      <br><br>
+      You may use your card or check for offline withdrawal.
+    </p>
+    <button class="modal-btn bg-emerald-600 hover:bg-emerald-500 text-white w-full" onclick="closeModal()">Acknowledge</button>
   </div>
 </div>
 
-<!-- Modal Example (optional) -->
-<div id="modalOverlay" class="modal-overlay">
-  <div class="modal-content">
-    <h2>Security Hold Active</h2>
-    <p>
-      A wire transfer to an unauthorized account was detected and marked as a security risk.
-      <br>
-      Online withdrawals are disabled until a <strong>$500 security deposit</strong> is paid.
-      <br>
-      You may use your card or check for offline withdrawal.
-    </p>
-    <button class="modal-btn modal-btn-primary" onclick="closeModal()">Ok</button>
+<!-- ==================== CHAT WIDGET ==================== -->
+<div id="chatBubble">💬</div>
+
+<div id="chatWindow">
+  <div id="chatHeader">
+    <span>Live Support</span>
+    <div class="header-actions">
+      <button id="expandBtn" title="Expand">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+      </button>
+      <button id="closeBtn" title="Close">✕</button>
+    </div>
+  </div>
+  <div id="messages"></div>
+  <div id="chatInputBox">
+    <input id="msgInput" placeholder="Type your message...">
+    <button id="sendBtn">➤</button>
   </div>
 </div>
 
 <script>
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('show');
-}
+    // Theme Toggle
+    document.addEventListener("DOMContentLoaded", () => {
+      const toggleBtn = document.getElementById("themeToggle");
+      const sun = document.getElementById("iconSun");
+      const moon = document.getElementById("iconMoon");
 
-// Show modal automatically on page load
-window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('modalOverlay').classList.add('show');
-});
+      function setTheme(isDark) {
+        if (isDark) {
+          document.documentElement.classList.add("dark");
+          document.documentElement.classList.remove("light");
+          localStorage.setItem("theme", "dark");
+          sun.classList.add("hidden");
+          moon.classList.remove("hidden");
+        } else {
+          document.documentElement.classList.remove("dark");
+          document.documentElement.classList.add("light");
+          localStorage.setItem("theme", "light");
+          sun.classList.remove("hidden");
+          moon.classList.add("hidden");
+        }
+      }
+      const saved = localStorage.getItem("theme");
+      setTheme(saved !== "light");
+      toggleBtn.addEventListener("click", () => {
+        const isDark = document.documentElement.classList.contains("dark");
+        setTheme(!isDark);
+      });
+    });
+
+    // Modal Logic
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('show');
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('modalOverlay').classList.add('show');
+    });
+
+    // ==================== USER CHAT SCRIPT ====================
+    document.addEventListener("DOMContentLoaded", () => {
+      const bubble = document.getElementById("chatBubble");
+      const box = document.getElementById("chatWindow");
+      const expandBtn = document.getElementById("expandBtn");
+      const closeBtn = document.getElementById("closeBtn");
+      const input = document.getElementById("msgInput");
+      const sendBtn = document.getElementById("sendBtn");
+      const messagesDiv = document.getElementById("messages");
+
+      let chatOpen = false;
+      let isFullscreen = false;
+      let hasShownWelcome = false;
+
+      bubble.addEventListener("click", () => {
+        chatOpen = !chatOpen;
+        box.style.display = chatOpen ? "flex" : "none";
+        if (chatOpen) loadChats();
+      });
+
+      expandBtn.addEventListener("click", () => {
+        isFullscreen = !isFullscreen;
+        box.classList.toggle("fullscreen", isFullscreen);
+      });
+
+      closeBtn.addEventListener("click", () => {
+        chatOpen = false;
+        box.style.display = "none";
+        box.classList.remove("fullscreen");
+        isFullscreen = false;
+      });
+
+      async function loadChats() {
+        try {
+          const res = await fetch("/chat/feed");
+          const data = await res.json();
+          messagesDiv.innerHTML = "";
+          let noticeAdded = false;
+
+          (data.chats || []).forEach(c => {
+            const div = document.createElement("div");
+            const sender = String(c.from || "").toLowerCase();
+            div.className = (sender === "admin") ? "adminMsg" : "userMsg";
+            div.textContent = c.message || c.text || c.reply || "";
+            messagesDiv.appendChild(div);
+
+            if (!noticeAdded && sender !== "admin") {
+              const notice = document.createElement("div");
+              notice.style.cssText = "align-self:center;background:rgba(15,23,42,0.9);color:#cbd5e1;padding:10px 16px;border-radius:12px;font-size:12px;text-align:center;max-width:85%;border:1px solid rgba(148,163,184,0.2);margin:8px 0;";
+              notice.innerHTML = `New session started<br><span style="opacity:0.85; font-size:11px;">An agent will join the session shortly</span>`;
+              messagesDiv.appendChild(notice);
+              noticeAdded = true;
+              hasShownWelcome = true;
+            }
+          });
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        } catch (e) { console.error("Load error:", e); }
+      }
+
+      async function sendMessage() {
+        const msg = input.value.trim();
+        if (!msg) return;
+        const temp = document.createElement("div");
+        temp.className = "userMsg";
+        temp.textContent = msg;
+        messagesDiv.appendChild(temp);
+
+        if (!hasShownWelcome) {
+          const notice = document.createElement("div");
+          notice.style.cssText = "align-self:center;background:rgba(15,23,42,0.9);color:#cbd5e1;padding:10px 16px;border-radius:12px;font-size:12px;text-align:center;max-width:85%;border:1px solid rgba(148,163,184,0.2);margin:8px 0;";
+          notice.innerHTML = `New session started<br><span style="opacity:0.85; font-size:11px;">An agent will join the session shortly</span>`;
+          messagesDiv.appendChild(notice);
+          hasShownWelcome = true;
+        }
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        input.value = "";
+
+        await fetch("/chat/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ from: "user", message: msg })
+        });
+        setTimeout(loadChats, 600);
+      }
+
+      sendBtn.addEventListener("click", sendMessage);
+      input.addEventListener("keypress", e => { if(e.key === "Enter") sendMessage(); });
+      setInterval(() => { if (chatOpen) loadChats(); }, 2500);
+    });
 </script>
-
 </body>
 </html>
