@@ -2,12 +2,10 @@
 <html lang="en" class="h-full dark">
 <head>
   <meta charset="UTF-8" />
-  <title>Phoenix Bank • Enterprise Dashboard</title>
+  <title>Withdraw | Phoenix Bank</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
   <script>
       tailwind.config = {
           darkMode: 'class',
@@ -25,43 +23,78 @@
   <style>
       body { font-family: 'Inter', sans-serif; background-color: #0a0f17; color: #f8fafc; }
       
-      .ent-card {
-          background: #121821;
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 16px;
-          transition: all 0.3s ease;
+      .ent-card { background: #121821; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; transition: all 0.3s ease; }
+      .glass-header { background: rgba(10,15,23,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+      
+      .ent-input {
+          width: 100%; background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+          padding: 14px 16px; font-size: 0.95rem; color: #f8fafc; transition: all 0.25s ease;
       }
-      .ent-card:hover {
-          border-color: rgba(16, 185, 129, 0.3);
-          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      .ent-input:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.15); }
+      .ent-label { font-size: 0.75rem; font-weight: 600; color: #94a3b8; margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.06em; }
+
+      .ent-btn {
+          width: 100%; padding: 14px; border-radius: 12px;
+          background: linear-gradient(135deg, #059669, #10b981);
+          color: white; font-weight: 600; border: none; cursor: pointer;
+          transition: transform .15s ease, box-shadow .15s ease;
+      }
+      .ent-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 20px rgba(16,185,129,0.25); }
+      .ent-btn:disabled { background: rgba(255,255,255,0.1); color: #64748b; cursor: not-allowed; }
+
+      .ent-btn-ghost {
+          padding: 14px 20px; border-radius: 12px; background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1); color: white; font-weight: 500; cursor: pointer;
+          transition: background 0.2s;
+      }
+      .ent-btn-ghost:hover { background: rgba(255,255,255,0.1); }
+
+      /* Method Tiles */
+      .method-tile {
+          position: relative; padding: 20px; border-radius: 16px; cursor: pointer;
+          background: #121821; border: 2px solid rgba(255,255,255,0.06);
+          transition: all 0.25s ease;
+      }
+      .method-tile:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.15); }
+      .method-tile.selected { border-color: #10b981; box-shadow: 0 0 0 4px rgba(16,185,129,0.15); }
+      .method-tile.selected::after {
+          content: '✓'; position: absolute; top: 12px; right: 12px;
+          width: 24px; height: 24px; border-radius: 50%;
+          background: #10b981; color: white; font-size: 14px; font-weight: bold;
+          display: flex; align-items: center; justify-content: center;
       }
 
-      .glass-header {
-          background: rgba(10, 15, 23, 0.85);
-          backdrop-filter: blur(12px);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      /* Stepper */
+      .step-dot {
+          width: 36px; height: 36px; border-radius: 50%; display: flex;
+          align-items: center; justify-content: center; font-weight: 600; font-size: 14px;
+          background: rgba(255,255,255,0.05); color: #64748b;
+          border: 2px solid rgba(255,255,255,0.08); transition: all 0.3s ease;
       }
+      .step-dot.active { background: #10b981; color: white; border-color: #10b981; box-shadow: 0 0 0 5px rgba(16,185,129,0.15); }
+      .step-dot.done { background: rgba(16,185,129,0.15); color: #10b981; border-color: #10b981; }
+      .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.08); margin: 0 8px; transition: background 0.3s ease; }
+      .step-line.done { background: #10b981; }
 
-      @keyframes pulse-dot {
-          0% { transform: scale(0.8); opacity: 1; }
-          70% { transform: scale(2); opacity: 0; }
-          100% { opacity: 0; }
-      }
-      .status-dot { width: 6px; height: 6px; background: #10b981; border-radius: 50%; position: relative; }
-      .status-dot::after {
-          content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-          background: #10b981; border-radius: 50%; animation: pulse-dot 1.5s infinite;
-      }
+      /* CashApp branded tile */
+      .cashapp-icon { background: #00D632; color: white; }
+      /* Revolut branded tile */
+      .revolut-icon { background: linear-gradient(135deg, #1b1b2f, #3c3c8f); color: white; }
+      /* Wire tile */
+      .wire-icon { background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; }
+      /* Bank tile */
+      .bank-icon { background: linear-gradient(135deg, #4c1d95, #8b5cf6); color: white; }
 
-      .txn-table th {
-          font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
-          color: #64748b; padding: 12px 16px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05);
+      /* Modal */
+      .modal-overlay {
+          position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+          display: flex; justify-content: center; align-items: center; z-index: 9999;
+          opacity: 0; pointer-events: none; transition: all .3s ease;
       }
-      .txn-table td {
-          padding: 14px 16px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.03);
-      }
-      .txn-table tr:hover td { background: rgba(255,255,255,0.02); }
+      .modal-overlay.show { opacity: 1; pointer-events: auto; }
 
+      /* Chat Widget */
       #chatBubble { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: #10b981; color: white; font-size: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; z-index: 99999; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); transition: transform 0.2s; }
       #chatBubble:hover { transform: scale(1.05); }
       #chatWindow { position: fixed; bottom: 95px; right: 20px; width: 94vw; max-width: 380px; height: 520px; background: #121821; border-radius: 20px; display: none; flex-direction: column; z-index: 99999; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
@@ -76,12 +109,21 @@
       #sendBtn { margin-left:8px; background:#10b981; color:white; width:50px; border:none; border-radius:12px; cursor:pointer; }
       .userMsg { align-self:flex-end; background:#10b981; color:white; padding:10px 14px; border-radius:16px 16px 4px 16px; max-width:78%; font-size:13px; }
       .adminMsg { align-self:flex-start; background:#1f2937; color:#e5e7eb; padding:10px 14px; border-radius:16px 16px 16px 4px; max-width:78%; font-size:13px; }
+
+      /* Fade animation for step change */
+      .step-panel { display: none; animation: fadeIn 0.35s ease; }
+      .step-panel.active { display: block; }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+      /* Processing spinner */
+      .spinner { width: 48px; height: 48px; border: 3px solid rgba(16,185,129,0.2); border-top-color: #10b981; border-radius: 50%; animation: spin 0.9s linear infinite; }
+      @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 
 <body class="h-full antialiased">
 
-<!-- ==================== SIDEBAR (DESKTOP) ==================== -->
+<!-- ==================== SIDEBAR ==================== -->
 <aside class="hidden lg:flex flex-col fixed left-0 top-0 h-full w-64 bg-[#0d131d] border-r border-white/5 p-4 z-40">
     <div class="flex items-center gap-3 px-2 mb-8">
         <div class="w-9 h-9 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-emerald-600/20">P</div>
@@ -92,7 +134,7 @@
     </div>
 
     <nav class="space-y-1 flex-1">
-        <a href="{{ url_for('dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 bg-emerald-600/10 text-emerald-400 rounded-xl text-sm font-medium transition-colors">
+        <a href="{{ url_for('dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl text-sm font-medium transition-colors">
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
             Overview
         </a>
@@ -104,9 +146,9 @@
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
             Cards
         </a>
-        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl text-sm font-medium transition-colors">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            Settings
+        <a href="{{ url_for('withdraw') }}" class="flex items-center gap-3 px-3 py-2.5 bg-emerald-600/10 text-emerald-400 rounded-xl text-sm font-medium transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Withdraw
         </a>
     </nav>
 
@@ -126,183 +168,370 @@
 <!-- ==================== MAIN LAYOUT ==================== -->
 <div class="lg:pl-64 flex flex-col min-h-screen">
 
+    <!-- HEADER -->
     <header class="glass-header sticky top-0 z-30 px-4 lg:px-8 py-3 flex items-center justify-between">
         <div class="flex items-center gap-3 lg:hidden">
             <div class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">P</div>
             <h1 class="font-bold text-lg text-white">Phoenix</h1>
         </div>
-
         <div class="hidden md:flex items-center bg-[#121821] border border-white/5 rounded-xl px-3 py-2 w-96">
             <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input type="text" placeholder="Search transactions, cards, or invoices..." class="bg-transparent border-none outline-none text-sm text-slate-300 ml-2 w-full placeholder:text-slate-600">
+            <input type="text" placeholder="Search..." class="bg-transparent border-none outline-none text-sm text-slate-300 ml-2 w-full placeholder:text-slate-600">
         </div>
-
         <div class="flex items-center gap-3">
             <button id="themeToggle" class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
                 <svg id="iconSun" class="w-4 h-4 text-yellow-400 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364 6.364l-1.414-1.414M7.05 7.05 5.636 5.636m12.728 0-1.414 1.414M7.05 16.95l-1.414 1.414M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
                 <svg id="iconMoon" class="w-4 h-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
             </button>
-            
-            <div class="relative">
-                <button onclick="toggleNotice()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors relative">
-                    <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 11-6 0"/></svg>
-                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-[#0a0f17]"></span>
-                </button>
-                <div id="notifyPanel" class="hidden absolute right-0 mt-2 w-80 bg-[#121821] border border-white/10 rounded-2xl p-4 shadow-2xl z-50">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Notifications</span>
-                        <span class="text-[10px] text-slate-500">Mark all read</span>
-                    </div>
-                    <div class="p-3 bg-amber-900/30 border-l-4 border-amber-500 rounded-xl text-xs">
-                        <strong class="text-amber-400">Court Fee Update</strong>
-                        <p class="mt-1 text-slate-300 leading-relaxed">
-                            Update surge (late payment levy) 1000 points. $300 Xbox card code has been used before. $6000.00 credit charge processed, 650 levy settled for late crypto levy payment.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
             <div class="lg:hidden w-9 h-9 rounded-full bg-emerald-900/50 flex items-center justify-center text-emerald-400 font-semibold border border-emerald-500/30 text-sm">
                 {{ account.name[0] }}
             </div>
         </div>
     </header>
 
-    <main class="flex-1 p-4 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
-        
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 ent-card p-6 flex flex-col justify-between relative overflow-hidden">
-                <div class="absolute -top-24 -right-24 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                
-                <div class="relative z-10">
-                    <p class="text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">Available Balance</p>
-                    <div class="flex items-end gap-3">
-                        <h2 id="balanceValue" data-balance="{{ account.balance }}" class="text-4xl lg:text-5xl font-bold text-white tracking-tight">$0</h2>
-                        <span class="text-emerald-400 text-sm font-medium mb-1 flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-                            +2.4%
-                        </span>
-                    </div>
-                    <p class="text-slate-500 text-xs mt-2">Phoenix Elite Account • {{ account.name }}</p>
-                </div>
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 p-4 lg:p-8 max-w-4xl mx-auto w-full">
 
-                <div class="relative z-10 mt-6 flex flex-wrap gap-3">
-                    <a href="{{ url_for('withdraw') }}" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-xl transition-colors shadow-lg shadow-emerald-600/20">Withdraw Funds</a>
-                    <a href="{{ url_for('history') }}" class="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white text-sm font-medium rounded-xl border border-white/10 transition-colors">View History</a>
-                    <a href="{{ url_for('card_details') }}" class="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white text-sm font-medium rounded-xl border border-white/10 transition-colors">Manage Card</a>
-                </div>
-            </div>
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-white">Withdraw Funds</h2>
+            <p class="text-slate-400 text-sm mt-1">Securely transfer funds from your Phoenix Elite Account.</p>
+        </div>
 
-            <div class="grid grid-cols-1 gap-4">
-                <div class="ent-card p-5">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-medium text-slate-400">Total Inflow</span>
-                        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        </span>
-                    </div>
-                    <p class="text-xl font-semibold text-white">$3,345.00</p>
-                    <p class="text-[11px] text-slate-500 mt-1">Last 30 days</p>
+        <!-- ==================== STEPPER ==================== -->
+        <div class="ent-card p-6 mb-6">
+            <div class="flex items-center">
+                <div class="flex flex-col items-center gap-2">
+                    <div class="step-dot active" id="dot1">1</div>
+                    <span class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Method</span>
                 </div>
-                <div class="ent-card p-5">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-medium text-slate-400">Total Outflow</span>
-                        <span class="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center text-red-400">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
-                        </span>
-                    </div>
-                    <p class="text-xl font-semibold text-white">$6,200,650.00</p>
-                    <p class="text-[11px] text-slate-500 mt-1">Last 30 days</p>
+                <div class="step-line" id="line1"></div>
+                <div class="flex flex-col items-center gap-2">
+                    <div class="step-dot" id="dot2">2</div>
+                    <span class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Details</span>
+                </div>
+                <div class="step-line" id="line2"></div>
+                <div class="flex flex-col items-center gap-2">
+                    <div class="step-dot" id="dot3">3</div>
+                    <span class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Amount</span>
+                </div>
+                <div class="step-line" id="line3"></div>
+                <div class="flex flex-col items-center gap-2">
+                    <div class="step-dot" id="dot4">4</div>
+                    <span class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Review</span>
                 </div>
             </div>
         </div>
 
-        <div class="ent-card p-6">
-            <div class="flex justify-between items-center mb-5">
-                <h3 class="text-base font-semibold text-white">Recent Activity</h3>
-                <a href="{{ url_for('history') }}" class="text-emerald-400 text-xs font-medium hover:text-emerald-300 transition-colors">View All →</a>
+        <!-- ==================== STEP 1: METHOD ==================== -->
+        <div class="step-panel active ent-card p-6 lg:p-8" id="panel1">
+            <h3 class="text-lg font-semibold text-white mb-1">Select Withdrawal Method</h3>
+            <p class="text-slate-400 text-sm mb-6">Choose how you'd like to receive your funds.</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- CashApp -->
+                <div class="method-tile" data-method="cashapp" onclick="selectMethod('cashapp', this)">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 rounded-xl cashapp-icon flex items-center justify-center font-bold text-xl shadow-lg">$</div>
+                        <div>
+                            <p class="font-semibold text-white">CashApp</p>
+                            <p class="text-xs text-slate-500">Instant • $cashtag</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400">Send directly to your CashApp $cashtag balance.</p>
+                </div>
+
+                <!-- Wire Transfer -->
+                <div class="method-tile" data-method="wire" onclick="selectMethod('wire', this)">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 rounded-xl wire-icon flex items-center justify-center shadow-lg">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-white">Wire Transfer</p>
+                            <p class="text-xs text-slate-500">Domestic • 1-3 Business Days</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400">Traditional bank wire to your routing & account number.</p>
+                </div>
+
+                <!-- Bank Account / Routing -->
+                <div class="method-tile" data-method="bank" onclick="selectMethod('bank', this)">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 rounded-xl bank-icon flex items-center justify-center shadow-lg">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V10l7-5 7 5v11M9 21V14h6v7"/></svg>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-white">Bank Account</p>
+                            <p class="text-xs text-slate-500">ACH • Routing + Account #</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400">Standard ACH transfer using your bank routing number.</p>
+                </div>
+
+                <!-- Revolut -->
+                <div class="method-tile" data-method="revolut" onclick="selectMethod('revolut', this)">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 rounded-xl revolut-icon flex items-center justify-center shadow-lg">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-white">Revolut</p>
+                            <p class="text-xs text-slate-500">International • Multi-currency</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400">Send to your Revolut account, IBAN, or Revolut tag.</p>
+                </div>
             </div>
 
-            <div class="hidden md:block overflow-x-auto">
-                <table class="w-full txn-table">
-                    <thead>
-                        <tr>
-                            <th>Transaction</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th class="text-right">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for tx in account.transactions[:5] %}
-                        <tr>
-                            <td>
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-lg flex items-center justify-center 
-                                        {% if tx.amount < 0 %}bg-red-500/10 text-red-400{% else %}bg-emerald-500/10 text-emerald-400{% endif %}">
-                                        {% if tx.amount < 0 %}
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
-                                        {% else %}
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                        {% endif %}
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-slate-200">{{ tx.note }}</p>
-                                        <p class="text-[11px] text-slate-500">{{ tx.category }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="text-slate-400">{{ tx.date }}</td>
-                            <td>
-                                {% if 'Unauthorized' in tx.note %}
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-red-500/10 text-red-400 border border-red-500/20">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> Flagged
-                                    </span>
-                                {% elif 'Court Order' in tx.category %}
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Pending
-                                    </span>
-                                {% else %}
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Completed
-                                    </span>
-                                {% endif %}
-                            </td>
-                            <td class="text-right font-medium {% if tx.amount < 0 %}text-red-400{% else %}text-emerald-400{% endif %}">
-                                ${{ '{:,.2f}'.format(tx.amount) }}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="flex justify-end mt-8">
+                <button class="ent-btn w-auto px-8" id="next1" disabled onclick="goToStep(2)">Continue →</button>
+            </div>
+        </div>
+
+        <!-- ==================== STEP 2: DETAILS ==================== -->
+        <div class="step-panel ent-card p-6 lg:p-8" id="panel2">
+            <h3 class="text-lg font-semibold text-white mb-1" id="detailsTitle">Enter Details</h3>
+            <p class="text-slate-400 text-sm mb-6" id="detailsSubtitle">Provide the destination account information.</p>
+
+            <!-- CashApp UI -->
+            <div id="ui-cashapp" class="hidden">
+                <div class="p-5 rounded-2xl bg-[#00D632]/5 border border-[#00D632]/20 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full cashapp-icon flex items-center justify-center font-bold">$</div>
+                        <div>
+                            <p class="text-sm font-semibold text-white">CashApp Transfer</p>
+                            <p class="text-xs text-slate-400">Enter your $cashtag below (e.g. $johndoe)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-5">
+                    <label class="ent-label">CashApp $Cashtag</label>
+                    <input type="text" id="cashappTag" class="ent-input" placeholder="$yourcashtag">
+                </div>
+                <div class="mb-5">
+                    <label class="ent-label">Recipient Name</label>
+                    <input type="text" id="cashappName" class="ent-input" placeholder="Full name on CashApp account">
+                </div>
             </div>
 
-            <div class="md:hidden space-y-3">
-                {% for tx in account.transactions[:4] %}
-                <div class="p-4 bg-white/5 rounded-xl border border-white/5 flex justify-between items-center">
+            <!-- Wire Transfer UI -->
+            <div id="ui-wire" class="hidden">
+                <div class="p-5 rounded-2xl bg-blue-500/5 border border-blue-500/20 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full wire-icon flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-white">Domestic Wire Transfer</p>
+                            <p class="text-xs text-slate-400">Funds typically arrive within 1–3 business days.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-5">
+                    <label class="ent-label">Beneficiary Name</label>
+                    <input type="text" id="wireName" class="ent-input" placeholder="Account holder full name">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                     <div>
-                        <p class="text-sm font-medium text-slate-200">{{ tx.note }}</p>
-                        <p class="text-[11px] text-slate-500">{{ tx.category }} • {{ tx.date }}</p>
+                        <label class="ent-label">Routing Number</label>
+                        <input type="text" id="wireRouting" class="ent-input" placeholder="9-digit routing number" maxlength="9">
                     </div>
-                    <p class="text-sm font-semibold {% if tx.amount < 0 %}text-red-400{% else %}text-emerald-400{% endif %}">
-                        ${{ '{:,.2f}'.format(tx.amount) }}
-                    </p>
+                    <div>
+                        <label class="ent-label">Account Number</label>
+                        <input type="text" id="wireAccount" class="ent-input" placeholder="Account number">
+                    </div>
                 </div>
-                {% endfor %}
+                <div class="mb-5">
+                    <label class="ent-label">Bank Name</label>
+                    <input type="text" id="wireBank" class="ent-input" placeholder="e.g. Chase, Wells Fargo">
+                </div>
+                <div class="mb-5">
+                    <label class="ent-label">Wire Reference (Optional)</label>
+                    <input type="text" id="wireRef" class="ent-input" placeholder="Reference / memo">
+                </div>
+            </div>
+
+            <!-- Bank / ACH UI -->
+            <div id="ui-bank" class="hidden">
+                <div class="p-5 rounded-2xl bg-purple-500/5 border border-purple-500/20 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bank-icon flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V10l7-5 7 5v11M9 21V14h6v7"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-white">ACH Bank Transfer</p>
+                            <p class="text-xs text-slate-400">Standard ACH — 2–5 business days.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-5">
+                    <label class="ent-label">Account Holder Name</label>
+                    <input type="text" id="bankName" class="ent-input" placeholder="Full legal name">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                    <div>
+                        <label class="ent-label">Routing Number</label>
+                        <input type="text" id="bankRouting" class="ent-input" placeholder="9-digit routing number" maxlength="9">
+                    </div>
+                    <div>
+                        <label class="ent-label">Account Number</label>
+                        <input type="text" id="bankAccount" class="ent-input" placeholder="Account number">
+                    </div>
+                </div>
+                <div class="mb-5">
+                    <label class="ent-label">Account Type</label>
+                    <select id="bankType" class="ent-input appearance-none">
+                        <option value="checking">Checking</option>
+                        <option value="savings">Savings</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Revolut UI -->
+            <div id="ui-revolut" class="hidden">
+                <div class="p-5 rounded-2xl bg-indigo-500/5 border border-indigo-500/20 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full revolut-icon flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-white">Revolut Transfer</p>
+                            <p class="text-xs text-slate-400">Send to your Revolut tag, IBAN, or phone number.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-5">
+                    <label class="ent-label">Transfer Destination</label>
+                    <select id="revolutType" class="ent-input appearance-none">
+                        <option value="tag">RevolutTag (@username)</option>
+                        <option value="iban">IBAN</option>
+                        <option value="phone">Phone Number</option>
+                    </select>
+                </div>
+                <div class="mb-5">
+                    <label class="ent-label">Revolut Identifier</label>
+                    <input type="text" id="revolutId" class="ent-input" placeholder="@revoluttag / IBAN / +1...">
+                </div>
+                <div class="mb-5">
+                    <label class="ent-label">Recipient Full Name</label>
+                    <input type="text" id="revolutName" class="ent-input" placeholder="Name registered on Revolut">
+                </div>
+            </div>
+
+            <div class="flex justify-between mt-8 gap-3">
+                <button class="ent-btn-ghost" onclick="goToStep(1)">← Back</button>
+                <button class="ent-btn w-auto px-8" id="next2" onclick="goToStep(3)">Continue →</button>
             </div>
         </div>
 
-        <div class="ent-card p-6">
-            <div class="flex justify-between items-center mb-5">
-                <h3 class="text-base font-semibold text-white">Account Overview</h3>
-                <select class="bg-white/5 border border-white/10 rounded-lg text-xs text-slate-300 px-3 py-1.5 outline-none">
-                    <option>Last 7 Days</option>
-                    <option>Last 30 Days</option>
-                    <option>This Year</option>
-                </select>
+        <!-- ==================== STEP 3: AMOUNT ==================== -->
+        <div class="step-panel ent-card p-6 lg:p-8" id="panel3">
+            <h3 class="text-lg font-semibold text-white mb-1">Enter Amount</h3>
+            <p class="text-slate-400 text-sm mb-6">Available balance: <span class="text-emerald-400 font-medium">{{ account.formatted_balance }}</span></p>
+
+            <div class="mb-5">
+                <label class="ent-label">Amount (USD)</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg font-medium">$</span>
+                    <input type="number" id="amountInput" class="ent-input pl-10 text-2xl font-semibold" placeholder="0.00" step="0.01">
+                </div>
             </div>
-            <div class="h-64 w-full">
-                <canvas id="txChart"></canvas>
+
+            <div class="flex flex-wrap gap-2 mb-6">
+                <button type="button" class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-300 hover:bg-white/10 transition" onclick="setAmount(500)">$500</button>
+                <button type="button" class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-300 hover:bg-white/10 transition" onclick="setAmount(1000)">$1,000</button>
+                <button type="button" class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-300 hover:bg-white/10 transition" onclick="setAmount(5000)">$5,000</button>
+                <button type="button" class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-300 hover:bg-white/10 transition" onclick="setAmount(10000)">$10,000</button>
+            </div>
+
+            <div class="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20 text-xs text-slate-400 mb-6">
+                <strong class="text-emerald-400">Fee Notice:</strong> Transfers over $10,000 may require additional compliance verification.
+            </div>
+
+            <div class="flex justify-between gap-3">
+                <button class="ent-btn-ghost" onclick="goToStep(2)">← Back</button>
+                <button class="ent-btn w-auto px-8" onclick="goToStep(4)">Continue →</button>
+            </div>
+        </div>
+
+        <!-- ==================== STEP 4: REVIEW ==================== -->
+        <div class="step-panel ent-card p-6 lg:p-8" id="panel4">
+            <h3 class="text-lg font-semibold text-white mb-1">Review & Confirm</h3>
+            <p class="text-slate-400 text-sm mb-6">Please verify the details below before submitting.</p>
+
+            <div class="space-y-3 mb-6">
+                <div class="flex justify-between p-4 rounded-xl bg-white/5 border border-white/5">
+                    <span class="text-slate-400 text-sm">Method</span>
+                    <span class="text-white font-medium text-sm" id="reviewMethod">—</span>
+                </div>
+                <div class="flex justify-between p-4 rounded-xl bg-white/5 border border-white/5">
+                    <span class="text-slate-400 text-sm">Destination</span>
+                    <span class="text-white font-medium text-sm text-right" id="reviewDest">—</span>
+                </div>
+                <div class="flex justify-between p-4 rounded-xl bg-white/5 border border-white/5">
+                    <span class="text-slate-400 text-sm">Amount</span>
+                    <span class="text-white font-bold text-lg" id="reviewAmount">—</span>
+                </div>
+            </div>
+
+            <div class="flex justify-between gap-3">
+                <button class="ent-btn-ghost" onclick="goToStep(3)">← Back</button>
+                <button class="ent-btn w-auto px-8" onclick="submitWithdraw()">Confirm Withdrawal</button>
+            </div>
+        </div>
+
+        <!-- ==================== STEP 5: PROCESSING ==================== -->
+        <div class="step-panel ent-card p-12 text-center" id="panel5">
+            <div class="spinner mx-auto mb-4"></div>
+            <h3 class="text-lg font-semibold text-white mb-1">Processing Withdrawal</h3>
+            <p class="text-slate-400 text-sm">Contacting Phoenix secure network...</p>
+        </div>
+
+        <!-- ==================== STEP 6: FAILED UI ==================== -->
+        <div class="step-panel ent-card p-6 lg:p-8" id="panel6">
+            <div class="text-center mb-6">
+                <div class="w-20 h-20 rounded-full bg-red-500/10 border-2 border-red-500/30 flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-10 h-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Transaction Failed</h3>
+                <p class="text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
+                    Withdrawal paused over inability for over 30 days.
+                </p>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-red-500/10 border border-red-500/30 mb-6">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-red-300 mb-1">Security Deposit Required</p>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            A <strong class="text-white">$300 security deposit</strong> is required to reactivate withdrawal.
+                            Your transaction has been held and no funds were moved.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 mb-6 text-center">
+                <div class="p-3 rounded-xl bg-white/5 border border-white/5">
+                    <p class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Reference</p>
+                    <p class="text-xs font-mono text-slate-300" id="failRef">—</p>
+                </div>
+                <div class="p-3 rounded-xl bg-white/5 border border-white/5">
+                    <p class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Code</p>
+                    <p class="text-xs font-mono text-red-400">ERR-DEP-300</p>
+                </div>
+                <div class="p-3 rounded-xl bg-white/5 border border-white/5">
+                    <p class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Status</p>
+                    <p class="text-xs font-mono text-red-400">HELD</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button class="ent-btn-ghost flex-1" onclick="restartFlow()">Try Again</button>
+                <button class="ent-btn flex-1" onclick="openSupport()">Contact Support</button>
             </div>
         </div>
 
@@ -330,77 +559,133 @@
 </div>
 
 <script>
-    function toggleNotice(){
-      document.getElementById('notifyPanel').classList.toggle('hidden');
+    // ==================== STEPPER LOGIC ====================
+    let currentStep = 1;
+    let selectedMethod = null;
+
+    function updateStepper(step) {
+      for (let i = 1; i <= 4; i++) {
+        const dot = document.getElementById('dot' + i);
+        dot.classList.remove('active', 'done');
+        if (i < step) dot.classList.add('done');
+        if (i === step) dot.classList.add('active');
+      }
+      for (let i = 1; i <= 3; i++) {
+        const line = document.getElementById('line' + i);
+        line.classList.remove('done');
+        if (i < step) line.classList.add('done');
+      }
     }
 
-    const balanceEl = document.getElementById('balanceValue');
-    setTimeout(() => {
-      const target = parseFloat(balanceEl.dataset.balance) || 0;
-      const start = performance.now();
-      function animate(t){
-        const p = Math.min((t - start)/1500, 1);
-        const easeOutQuart = 1 - Math.pow(1 - p, 4);
-        const val = Math.floor(easeOutQuart * target);
-        balanceEl.textContent = '$' + val.toLocaleString('en-US');
-        if(p < 1) requestAnimationFrame(animate);
-      }
-      requestAnimationFrame(animate);
-    }, 300);
+    function goToStep(step) {
+      // Hide all panels
+      document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+      // Show target
+      const panel = document.getElementById('panel' + step);
+      if (panel) panel.classList.add('active');
+      currentStep = step;
+      if (step <= 4) updateStepper(step);
+      // Populate review on step 4
+      if (step === 4) populateReview();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
-    new Chart(document.getElementById('txChart'), {
-      type: 'line',
-      data: {
-        labels: {{ chart_labels|tojson|safe }},
-        datasets: [{
-          label: 'Transaction Amount',
-          data: {{ chart_data|tojson|safe }},
-          borderColor: '#10b981',
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
-          borderWidth: 2,
-          pointBackgroundColor: '#10b981',
-          pointBorderColor: '#0a0f17',
-          pointBorderWidth: 2,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          fill: true,
-          tension: 0.4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { 
-            legend: { display: false },
-            tooltip: {
-                backgroundColor: '#121821',
-                titleColor: '#fff',
-                bodyColor: '#cbd5e1',
-                borderColor: 'rgba(255,255,255,0.1)',
-                borderWidth: 1,
-                padding: 12,
-                displayColors: false,
-                callbacks: {
-                    label: function(context) {
-                        return '$' + context.parsed.y.toLocaleString();
-                    }
-                }
-            }
-        },
-        scales: {
-          y: { 
-              beginAtZero: true, 
-              grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
-              ticks: { color: '#64748b', font: { size: 11 } }
-          },
-          x: {
-              grid: { display: false },
-              ticks: { color: '#64748b', font: { size: 11 } }
-          }
-        }
-      }
-    });
+    function selectMethod(method, tile) {
+      selectedMethod = method;
+      document.querySelectorAll('.method-tile').forEach(t => t.classList.remove('selected'));
+      tile.classList.add('selected');
+      document.getElementById('next1').disabled = false;
+      // Show the right details UI in step 2
+      ['cashapp', 'wire', 'bank', 'revolut'].forEach(m => {
+        document.getElementById('ui-' + m).classList.add('hidden');
+      });
+      document.getElementById('ui-' + method).classList.remove('hidden');
+      // Update details titles
+      const titles = {
+        cashapp: { t: 'CashApp Details', s: 'Enter your CashApp $cashtag and recipient name.' },
+        wire: { t: 'Wire Transfer Details', s: 'Enter your bank wire routing and account information.' },
+        bank: { t: 'Bank Account Details', s: 'Enter your ACH routing and account number.' },
+        revolut: { t: 'Revolut Details', s: 'Enter your Revolut tag, IBAN, or phone number.' }
+      };
+      document.getElementById('detailsTitle').textContent = titles[method].t;
+      document.getElementById('detailsSubtitle').textContent = titles[method].s;
+    }
 
+    function setAmount(val) {
+      document.getElementById('amountInput').value = val;
+    }
+
+    function populateReview() {
+      const methodLabels = {
+        cashapp: 'CashApp',
+        wire: 'Wire Transfer',
+        bank: 'Bank Account (ACH)',
+        revolut: 'Revolut'
+      };
+      document.getElementById('reviewMethod').textContent = methodLabels[selectedMethod] || '—';
+
+      let dest = '—';
+      if (selectedMethod === 'cashapp') {
+        const tag = document.getElementById('cashappTag').value || '—';
+        const name = document.getElementById('cashappName').value || '';
+        dest = tag + (name ? ' (' + name + ')' : '');
+      } else if (selectedMethod === 'wire') {
+        const name = document.getElementById('wireName').value || '—';
+        const bank = document.getElementById('wireBank').value || '';
+        const acct = document.getElementById('wireAccount').value || '';
+        dest = name + (bank ? ' • ' + bank : '') + (acct ? ' • ••••' + acct.slice(-4) : '');
+      } else if (selectedMethod === 'bank') {
+        const name = document.getElementById('bankName').value || '—';
+        const acct = document.getElementById('bankAccount').value || '';
+        dest = name + (acct ? ' • ••••' + acct.slice(-4) : '');
+      } else if (selectedMethod === 'revolut') {
+        const id = document.getElementById('revolutId').value || '—';
+        dest = id;
+      }
+      document.getElementById('reviewDest').textContent = dest;
+
+      const amt = parseFloat(document.getElementById('amountInput').value) || 0;
+      document.getElementById('reviewAmount').textContent = '$' + amt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function submitWithdraw() {
+      goToStep(5); // processing
+      setTimeout(() => {
+        // Generate random reference for failed UI
+        const ref = 'TXN-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+        document.getElementById('failRef').textContent = ref;
+        goToStep(6);
+      }, 2200);
+    }
+
+    function restartFlow() {
+      selectedMethod = null;
+      document.querySelectorAll('.method-tile').forEach(t => t.classList.remove('selected'));
+      document.getElementById('next1').disabled = true;
+      ['cashappTag','cashappName','wireName','wireRouting','wireAccount','wireBank','wireRef',
+       'bankName','bankRouting','bankAccount','revolutId','revolutName'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      document.getElementById('amountInput').value = '';
+      goToStep(1);
+    }
+
+    function openSupport() {
+      // Open the chat widget
+      const box = document.getElementById('chatWindow');
+      const bubble = document.getElementById('chatBubble');
+      box.style.display = 'flex';
+      // Trigger a load
+      setTimeout(() => {
+        // Try to click the bubble programmatically to load chats
+        bubble.click();
+        // Ensure it stays open
+        setTimeout(() => { box.style.display = 'flex'; }, 50);
+      }, 100);
+    }
+
+    // ==================== THEME TOGGLE ====================
     document.addEventListener("DOMContentLoaded", () => {
       const toggleBtn = document.getElementById("themeToggle");
       const sun = document.getElementById("iconSun");
@@ -429,6 +714,7 @@
       });
     });
 
+    // ==================== CHAT WIDGET ====================
     document.addEventListener("DOMContentLoaded", () => {
       const bubble = document.getElementById("chatBubble");
       const box = document.getElementById("chatWindow");
