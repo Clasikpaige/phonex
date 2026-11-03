@@ -23,7 +23,7 @@ class User(UserMixin):
 
 # Updated User Data
 users = {
-    'jami': User('paige', 'Jami Caloway', 'paige2025'),
+    'paige': User('paige', 'Jami Caloway', 'paige2025'),
     'richard': User('richard', 'Richard Admin', 'admin2026')
 }
 
