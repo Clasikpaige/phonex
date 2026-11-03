@@ -23,13 +23,13 @@ class User(UserMixin):
 
 # Updated User Data
 users = {
-    'jami': User('richard', 'Jami Caloway', 'admin5571'),
+    'jami': User('paige', 'Jami Caloway', 'paige2025'),
     'richard': User('richard', 'Richard Admin', 'admin2026')
 }
 
 # Updated User Roles
 user_roles = {
-    "jami": "user",
+    "paige": "user",
     "richard": "admin"
 }
 
