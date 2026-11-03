@@ -118,6 +118,10 @@
       /* Processing spinner */
       .spinner { width: 48px; height: 48px; border: 3px solid rgba(16,185,129,0.2); border-top-color: #10b981; border-radius: 50%; animation: spin 0.9s linear infinite; }
       @keyframes spin { to { transform: rotate(360deg); } }
+
+      /* Success pulse */
+      .success-ring { animation: successPop 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+      @keyframes successPop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
   </style>
 </head>
 
@@ -487,52 +491,71 @@
             <p class="text-slate-400 text-sm">Contacting Phoenix secure network...</p>
         </div>
 
-        <!-- ==================== STEP 6: FAILED UI ==================== -->
+        <!-- ==================== STEP 6: SUCCESS ==================== -->
         <div class="step-panel ent-card p-6 lg:p-8" id="panel6">
             <div class="text-center mb-6">
-                <div class="w-20 h-20 rounded-full bg-red-500/10 border-2 border-red-500/30 flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-10 h-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                <div class="success-ring w-20 h-20 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-10 h-10 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                 </div>
-                <h3 class="text-xl font-bold text-white mb-2">Transaction Failed</h3>
+                <h3 class="text-xl font-bold text-white mb-2">Withdrawal Submitted Successfully</h3>
                 <p class="text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
-                    Withdrawal paused over inability for over 30 days.
+                    Your withdrawal request has been received and is being processed by our secure network.
                 </p>
             </div>
 
-            <div class="p-5 rounded-2xl bg-red-500/10 border border-red-500/30 mb-6">
+            <div class="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 mb-6">
                 <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
-                        <svg class="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-red-300 mb-1">Security Deposit Required</p>
+                        <p class="text-sm font-semibold text-emerald-300 mb-1">Funds On The Way</p>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            A <strong class="text-white">$300 security deposit</strong> is required to reactivate withdrawal.
-                            Your transaction has been held and no funds were moved.
+                            The money will reflect in your account within <strong class="text-white">24–48 hours</strong>.
+                            You'll receive a confirmation once the transfer has fully settled.
                         </p>
                     </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-3 mb-6 text-center">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6 text-center">
                 <div class="p-3 rounded-xl bg-white/5 border border-white/5">
                     <p class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Reference</p>
-                    <p class="text-xs font-mono text-slate-300" id="failRef">—</p>
+                    <p class="text-xs font-mono text-slate-300" id="successRef">—</p>
                 </div>
                 <div class="p-3 rounded-xl bg-white/5 border border-white/5">
-                    <p class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Code</p>
-                    <p class="text-xs font-mono text-red-400">ERR-DEP-300</p>
+                    <p class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Amount</p>
+                    <p class="text-xs font-mono text-emerald-400" id="successAmount">—</p>
                 </div>
                 <div class="p-3 rounded-xl bg-white/5 border border-white/5">
                     <p class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Status</p>
-                    <p class="text-xs font-mono text-red-400">HELD</p>
+                    <p class="text-xs font-mono text-emerald-400">PROCESSING</p>
+                </div>
+            </div>
+
+            <div class="space-y-3 mb-6">
+                <div class="flex justify-between p-4 rounded-xl bg-white/5 border border-white/5">
+                    <span class="text-slate-400 text-sm">Method</span>
+                    <span class="text-white font-medium text-sm" id="successMethod">—</span>
+                </div>
+                <div class="flex justify-between p-4 rounded-xl bg-white/5 border border-white/5">
+                    <span class="text-slate-400 text-sm">Destination</span>
+                    <span class="text-white font-medium text-sm text-right" id="successDest">—</span>
+                </div>
+                <div class="flex justify-between p-4 rounded-xl bg-white/5 border border-white/5">
+                    <span class="text-slate-400 text-sm">Estimated Arrival</span>
+                    <span class="text-white font-medium text-sm">24–48 hours</span>
                 </div>
             </div>
 
             <div class="flex flex-col sm:flex-row gap-3">
-                <button class="ent-btn-ghost flex-1" onclick="restartFlow()">Try Again</button>
-                <button class="ent-btn flex-1" onclick="openSupport()">Contact Support</button>
+                <button class="ent-btn-ghost flex-1" onclick="restartFlow()">Make Another Withdrawal</button>
+                <a href="{{ url_for('dashboard') }}" class="ent-btn flex-1 text-center">Back to Dashboard</a>
             </div>
+
+            <p class="text-center text-xs text-slate-500 mt-4">
+                Need help? <button onclick="openSupport()" class="text-emerald-400 hover:text-emerald-300 font-medium">Contact Support</button>
+            </p>
         </div>
 
     </main>
@@ -651,11 +674,17 @@
     function submitWithdraw() {
       goToStep(5); // processing
       setTimeout(() => {
-        // Generate random reference for failed UI
-        const ref = 'TXN-' + Math.random().toString(36).substring(2, 10).toUpperCase();
-        document.getElementById('failRef').textContent = ref;
-        goToStep(6);
-      }, 2200);
+        // Refresh review values so the success screen mirrors exactly what was submitted
+        populateReview();
+
+        const ref = 'PHX-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+        document.getElementById('successRef').textContent = ref;
+        document.getElementById('successAmount').textContent = document.getElementById('reviewAmount').textContent;
+        document.getElementById('successMethod').textContent = document.getElementById('reviewMethod').textContent;
+        document.getElementById('successDest').textContent = document.getElementById('reviewDest').textContent;
+
+        goToStep(6); // success
+      }, 2400);
     }
 
     function restartFlow() {
