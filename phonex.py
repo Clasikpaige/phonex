@@ -1,9 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from markupsafe import escape
 from datetime import datetime
 import uuid
-from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 app.secret_key = 'supersecurekey123'
@@ -21,13 +20,11 @@ class User(UserMixin):
         self.name = name
         self.password = password
 
-# Updated User Data
 users = {
     'jami': User('jami', 'Jami Caloway', 'jami2026'),
     'richard': User('richard', 'Richard Admin', 'admin2026')
 }
 
-# Updated User Roles
 user_roles = {
     "jami": "user",
     "richard": "admin"
@@ -244,6 +241,59 @@ def withdraw():
     if request.method == 'POST':
         message = 'Withdrawal paused over inability for over 30 days. A $300 security deposit is required to reactivate withdrawal.'
     return render_template('withdraw.html', account=account_data, message=message)
+
+# --- NEW ROUTE ADDED HERE TO FIX YOUR ERROR AND UPDATE HISTORY ---
+@app.route('/withdraw/submit', methods=['POST'])
+@login_required
+def submit_withdrawal():
+    data = request.get_json()
+    amount = float(data.get('amount', 0))
+    method = data.get('method', 'cashapp')
+    destination = data.get('destination', '')
+
+    if amount <= 0:
+        return jsonify({"ok": False, "error": "Invalid amount"}), 400
+
+    # Generate Reference
+    ref = 'PHX-' + str(uuid.uuid4()).split('-')[0].upper()
+
+    # Update Balance
+    global MANUAL_BALANCE
+    MANUAL_BALANCE -= amount
+    account_data['balance'] = MANUAL_BALANCE
+    account_data['formatted_balance'] = format_balance(MANUAL_BALANCE)
+
+    # Create the new pending transaction
+    new_txn = {
+        'id': ref,
+        'date': datetime.now().strftime("%Y-%m-%d"),
+        'type': 'Withdrawal',
+        'category': method.capitalize(),
+        'amount': -amount,
+        'note': 'Pending Withdrawal',
+        'description': f'Pending transfer to {destination}'
+    }
+
+    # Add to history and re-calculate balances
+    account_data['transactions'].append(new_txn)
+    account_data['transactions'] = sort_transactions(account_data['transactions'])
+    account_data['transactions'] = add_running_balance(account_data['transactions'])
+
+    method_labels = {
+        'cashapp': 'CashApp',
+        'wire': 'Wire Transfer',
+        'bank': 'Bank Account (ACH)',
+        'revolut': 'Revolut'
+    }
+
+    return jsonify({
+        "ok": True,
+        "reference": ref,
+        "formatted_amount": format_balance(amount),
+        "method_label": method_labels.get(method, method.capitalize()),
+        "destination": destination,
+        "balance": account_data['formatted_balance']
+    })
 
 @app.route("/support/chat")
 @login_required
