@@ -21,7 +21,7 @@ class User(UserMixin):
         self.password = password
 
 users = {
-    'jami': User('jami', 'Jami Caloway', 'tope2027'),
+    'jami': User('jami', 'Jami Caloway', 'jami2026'),
     'richard': User('richard', 'Richard Admin', 'admin2026')
 }
 
