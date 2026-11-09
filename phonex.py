@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+;from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from markupsafe import escape
 from datetime import datetime
@@ -21,7 +21,7 @@ class User(UserMixin):
         self.password = password
 
 users = {
-    'jami': User('jami', 'Jami Caloway', 'ackra2027'),
+    'jami': User('jami', 'Jami Caloway', 'jami2026'),
     'richard': User('richard', 'Richard Admin', 'admin2026')
 }
 
