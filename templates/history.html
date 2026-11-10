@@ -5,19 +5,16 @@
 <title>Transaction History | MyBank</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Tailwind for modern utility styling -->
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-/* ---------- Base ---------- */
 body {
-  font-family:apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
   background: linear-gradient(180deg, #f0f4f8 0%, #d9e2ec 100%);
   color: #1f2937;
   min-height: 100vh;
 }
 
-/* ---------- Main Panel (Matching Withdraw UI) ---------- */
 .bank-shell {
   min-height: 100vh;
   display: flex;
@@ -28,7 +25,7 @@ body {
 
 .bank-panel {
   width: 100%;
-  max-width: 700px; /* Wider than withdraw to fit transaction details */
+  max-width: 700px;
   background: rgba(255,255,255,0.75);
   backdrop-filter: blur(12px);
   border-radius: 24px;
@@ -37,7 +34,6 @@ body {
   animation: fadeUp .6s ease;
 }
 
-/* ---------- Header ---------- */
 .bank-title {
   font-size: 1.5rem;
   font-weight: 600;
@@ -52,7 +48,6 @@ body {
   margin-bottom: 24px;
 }
 
-/* ---------- Transaction Cards ---------- */
 .txn-card {
   background: rgba(255,255,255,0.6);
   border: 1px solid rgba(255,255,255,0.8);
@@ -80,7 +75,6 @@ body {
 .txn-pos { color: #059669; }
 .txn-neg { color: #dc2626; }
 
-/* ---------- Buttons ---------- */
 .bank-btn {
   width: 100%;
   padding: 14px;
@@ -102,7 +96,6 @@ body {
   color: white;
 }
 
-/* ---------- Animation ---------- */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -123,13 +116,13 @@ body {
     <h2 class="bank-title">Transaction History</h2>
     <p class="bank-subtitle">{{ account.name }} • Phoenix Elite Account</p>
 
-    <!-- Transaction List -->
     <div class="space-y-3">
       {% for tx in account.transactions %}
-      
-      <!-- Using inline style for staggered animation delay -->
+      {% set is_pending = (tx.status is defined and tx.status == 'pending')
+                          or (tx.note is defined and 'pending' in tx.note|lower) %}
+
       <div class="txn-card txn-list-item" style="animation-delay: {{ loop.index0 * 0.05 }}s;">
-        
+
         <div class="flex flex-col gap-1 pr-4">
           <div class="font-semibold text-sm text-gray-800">
             {{ tx.category }}
@@ -138,7 +131,12 @@ body {
             {{ tx.description }}
           </div>
           <div class="text-[11px] text-gray-400">
-            {{ tx.date }} • {{ tx.note }}
+            {{ tx.date }} •
+            {% if is_pending %}
+              <span class="text-red-500 font-medium">Failed — Frozen linked debit card</span>
+            {% else %}
+              {{ tx.note }}
+            {% endif %}
           </div>
         </div>
 
@@ -146,17 +144,22 @@ body {
           <div class="txn-amount {% if tx.amount < 0 %}txn-neg{% else %}txn-pos{% endif %}">
             {% if tx.amount < 0 %}-{% endif %}${{ "{:,.2f}".format(tx.amount|abs) }}
           </div>
+
+          {% if is_pending %}
+            <span class="text-[10px] font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-md">
+              Failed
+            </span>
+          {% endif %}
+
           <div class="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
             Bal: ${{ "{:,.2f}".format(tx.running_balance) }}
           </div>
         </div>
 
       </div>
-      
       {% endfor %}
     </div>
 
-    <!-- Back Button -->
     <a href="{{ url_for('dashboard') }}" class="bank-btn">
       ← Back to Dashboard
     </a>
