@@ -21,12 +21,12 @@ class User(UserMixin):
         self.password = password
 
 users = {
-    'habibi': User('jami', 'Habibi Jacksparrow', 'habibi2026'),
+    'habibi': User('habibi', 'Habibi Jacksparrow', 'habibi2026'),
     'richard': User('richard', 'Richard Admin', 'admin2026')
 }
 
 user_roles = {
-    "jami": "user",
+    "habibi": "user",
     "richard": "admin"
 }
 
