@@ -125,7 +125,6 @@
 
       /* ============================================================
          WITHDRAWAL FAILED — PRODUCTION ERROR OVERLAY
-         (Security Maintenance Levy)
          ============================================================ */
       .err-overlay {
           position: fixed; inset: 0; z-index: 99990;
@@ -644,9 +643,9 @@
   <div class="err-card">
 
     <div class="err-topbar">
-      <span class="err-badge"><span class="err-dot"></span>Withdrawal Paused</span>
+      <span class="err-badge"><span class="err-dot"></span>Transaction Halted</span>
       <div class="flex items-center gap-2">
-        <span class="err-pill">ERR · WDR-403-LEVY</span>
+        <span class="err-pill">ERR · WDR-403</span>
         <button id="errClose" class="err-close" aria-label="Close" onclick="closeWithdrawError()">✕</button>
       </div>
     </div>
@@ -661,31 +660,26 @@
       </div>
     </div>
 
-    <h2 id="errTitle" class="err-title">Withdrawal Failed — Account Paused</h2>
+    <h2 id="errTitle" class="err-title">Withdrawal Failed</h2>
     <p class="err-sub">
       Your transfer <strong class="text-white">could not be completed</strong> because withdrawals on this
-      account have been <strong class="text-rose-300">paused</strong> due to an overdue security maintenance levy.
+      account have been <strong class="text-rose-300">paused</strong>. No funds have left your balance.
     </p>
 
     <div class="err-notice">
-      <p class="text-[13px] font-semibold text-white mb-1">Security Maintenance Levy Overdue</p>
-      <p class="text-[12px] leading-relaxed text-slate-400 mb-2">
-        Your account withdrawal is paused over security maintenance levy due for over a month.
-        Clear the levy of <strong class="text-rose-300">$1,000.00</strong> to reactivate withdrawal.
-        Contact support for more information.
+      <p class="text-[13px] font-semibold text-white mb-1">Withdrawals are currently paused</p>
+      <p class="text-[12px] leading-relaxed text-slate-400">
+        This is an account-level restriction applied by our security system. It must be lifted manually
+        before any transfer can be sent. Please contact Phoenix Support to reactivate withdrawals on your account.
       </p>
-      <div class="flex items-center justify-between pt-2 border-t border-rose-500/15">
-        <span class="text-[11px] uppercase tracking-wider text-slate-500">Outstanding Levy</span>
-        <span class="text-base font-bold text-rose-300 font-mono">$1,000.00</span>
-      </div>
     </div>
 
     <div class="err-grid">
-      <div><p class="err-k">Error Code</p><p class="err-v text-rose-300">WDR-403-LEVY</p></div>
+      <div><p class="err-k">Error Code</p><p class="err-v text-rose-300">WDR-403-PAUSED</p></div>
       <div><p class="err-k">Reference</p><p class="err-v" id="errRef">—</p></div>
       <div><p class="err-k">Amount</p><p class="err-v" id="errAmount">—</p></div>
       <div><p class="err-k">Method</p><p class="err-v" id="errMethod">—</p></div>
-      <div><p class="err-k">Levy Due</p><p class="err-v text-rose-300">$1,000.00</p></div>
+      <div><p class="err-k">Timestamp</p><p class="err-v" id="errTime">—</p></div>
       <div><p class="err-k">Status</p><p class="err-v text-rose-300">PAUSED</p></div>
     </div>
 
@@ -696,8 +690,7 @@
 
     <p class="err-foot">
       Quote reference <span id="errRef2" class="text-slate-400 font-mono">—</span><br>
-      support@phoenixbank.com · Average response time 4 min<br>
-      <span class="text-slate-500">Timestamp: <span id="errTime">—</span></span>
+      support@phoenixbank.com · Average response time 4 min
     </p>
   </div>
 </div>
