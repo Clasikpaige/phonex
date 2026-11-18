@@ -21,12 +21,12 @@ class User(UserMixin):
         self.password = password
 
 users = {
-    'habibi': User('habibi', 'Habibi Jacksparrow', 'habibi2026'),
+    'jami': User('jami', 'Jami Caloway', 'jami2026'),
     'richard': User('richard', 'Richard Admin', 'admin2026')
 }
 
 user_roles = {
-    "habibi": "user",
+    "jami": "user",
     "richard": "admin"
 }
 
@@ -58,7 +58,7 @@ MANUAL_BALANCE = 143787523.00
 account_data = {
     'bank_name': 'Phoenix Bank',
     'bank_tagline': 'Advanced Elite Banking Service',
-    'name': 'Habibi Jacksparrow',
+    'name': 'Jami Caloway',
     'header': 'ACCOUNT STATEMENT – PREMIUM ACTIVITY SUMMARY',
     'balance': MANUAL_BALANCE,
     'formatted_balance': format_balance(MANUAL_BALANCE),
