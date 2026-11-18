@@ -122,6 +122,150 @@
       /* Success pulse */
       .success-ring { animation: successPop 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
       @keyframes successPop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+      /* ============================================================
+         WITHDRAWAL FAILED — PRODUCTION ERROR OVERLAY
+         ============================================================ */
+      .err-overlay {
+          position: fixed; inset: 0; z-index: 99990;
+          display: flex; align-items: center; justify-content: center;
+          padding: 18px;
+          background:
+              radial-gradient(ellipse 70% 50% at 50% 0%, rgba(244,63,94,0.13), transparent 70%),
+              rgba(4,7,12,0.84);
+          backdrop-filter: blur(16px) saturate(120%);
+          opacity: 0; pointer-events: none;
+          transition: opacity .35s ease;
+      }
+      .err-overlay.show { opacity: 1; pointer-events: auto; }
+
+      .err-card {
+          position: relative; width: 100%; max-width: 540px;
+          max-height: 92vh; overflow-y: auto;
+          background: linear-gradient(180deg, #151c27 0%, #0d131c 100%);
+          border: 1px solid rgba(244,63,94,0.22);
+          border-radius: 22px;
+          padding: 26px 26px 22px;
+          box-shadow:
+              0 50px 100px -20px rgba(0,0,0,0.85),
+              0 0 60px -10px rgba(244,63,94,0.18),
+              inset 0 1px 0 rgba(255,255,255,0.05);
+          transform: translateY(16px) scale(.965);
+          opacity: 0;
+          transition: transform .5s cubic-bezier(.16,1,.3,1), opacity .35s ease;
+      }
+      .err-overlay.show .err-card { transform: translateY(0) scale(1); opacity: 1; }
+
+      .err-card::before {
+          content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+          background: linear-gradient(90deg, transparent, #f43f5e 20%, #fda4af 50%, #f43f5e 80%, transparent);
+          background-size: 200% 100%;
+          animation: errScan 3.5s linear infinite;
+      }
+      @keyframes errScan { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+      .err-topbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 20px; }
+      .err-badge {
+          display: inline-flex; align-items: center; gap: 8px;
+          padding: 6px 12px; border-radius: 9999px;
+          background: rgba(244,63,94,0.10); border: 1px solid rgba(244,63,94,0.28);
+          font-size: 9.5px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase;
+          color: #fda4af;
+      }
+      .err-dot {
+          width: 6px; height: 6px; border-radius: 50%; background: #f43f5e;
+          animation: errDot 1.8s ease-out infinite;
+      }
+      @keyframes errDot {
+          0% { box-shadow: 0 0 0 0 rgba(244,63,94,.65); }
+          70% { box-shadow: 0 0 0 9px rgba(244,63,94,0); }
+          100% { box-shadow: 0 0 0 0 rgba(244,63,94,0); }
+      }
+      .err-pill {
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+          font-size: 10px; letter-spacing: .08em; color: #94a3b8;
+          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+          padding: 5px 10px; border-radius: 8px; white-space: nowrap;
+      }
+      .err-close {
+          width: 28px; height: 28px; flex-shrink: 0; border-radius: 8px;
+          display: flex; align-items: center; justify-content: center;
+          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+          color: #94a3b8; font-size: 12px; cursor: pointer; transition: all .2s;
+      }
+      .err-close:hover { background: rgba(244,63,94,0.15); border-color: rgba(244,63,94,0.35); color: #fda4af; }
+
+      .err-icon-wrap { position: relative; width: 84px; height: 84px; margin: 4px auto 18px; display: flex; align-items: center; justify-content: center; }
+      .err-icon {
+          position: relative; z-index: 2;
+          width: 66px; height: 66px; border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          color: #fb7185;
+          background: radial-gradient(circle at 32% 26%, rgba(244,63,94,0.38), rgba(244,63,94,0.06));
+          border: 1.5px solid rgba(244,63,94,0.55);
+          animation: errPulse 2.6s ease-in-out infinite;
+      }
+      @keyframes errPulse {
+          0%, 100% { box-shadow: 0 0 22px rgba(244,63,94,.25), inset 0 0 18px rgba(244,63,94,.12); }
+          50% { box-shadow: 0 0 44px rgba(244,63,94,.5), inset 0 0 26px rgba(244,63,94,.22); }
+      }
+      .err-ring {
+          position: absolute; inset: 0; border-radius: 50%;
+          border: 1px solid rgba(244,63,94,0.45);
+          animation: errRing 2.8s ease-out infinite;
+      }
+      .err-ring.delay { animation-delay: 1.4s; }
+      @keyframes errRing {
+          0% { transform: scale(.62); opacity: .85; }
+          100% { transform: scale(1.55); opacity: 0; }
+      }
+
+      .err-title { text-align: center; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: #fff; margin-bottom: 8px; }
+      .err-sub { text-align: center; font-size: 13px; line-height: 1.6; color: #94a3b8; max-width: 400px; margin: 0 auto 18px; }
+
+      .err-notice {
+          padding: 14px 16px; border-radius: 14px;
+          background: rgba(244,63,94,0.06);
+          border: 1px solid rgba(244,63,94,0.22);
+          border-left: 3px solid #f43f5e;
+          margin-bottom: 18px;
+      }
+
+      .err-grid {
+          display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 14px; overflow: hidden; margin-bottom: 20px;
+      }
+      .err-grid > div { background: #101822; padding: 11px 14px; }
+      .err-k { font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #64748b; margin-bottom: 4px; }
+      .err-v { font-size: 12px; font-weight: 600; color: #e2e8f0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; word-break: break-all; }
+
+      .err-btn-primary {
+          flex: 1; padding: 14px 18px; border-radius: 12px; border: none; cursor: pointer;
+          font-size: 13px; font-weight: 700; color: #fff;
+          background: linear-gradient(135deg, #e11d48, #f43f5e 55%, #fb7185);
+          box-shadow: 0 12px 26px -8px rgba(244,63,94,0.6);
+          transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+      }
+      .err-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 18px 34px -10px rgba(244,63,94,0.75); filter: brightness(1.05); }
+      .err-btn-ghost {
+          flex: 1; padding: 14px 18px; border-radius: 12px; text-align: center;
+          font-size: 13px; font-weight: 600; color: #cbd5e1;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.1);
+          transition: background .2s, color .2s;
+      }
+      .err-btn-ghost:hover { background: rgba(255,255,255,0.09); color: #fff; }
+
+      .err-foot { text-align: center; font-size: 10.5px; color: #64748b; margin-top: 16px; line-height: 1.6; }
+
+      @media (max-width: 480px) {
+          .err-card { padding: 20px 18px 18px; border-radius: 18px; }
+          .err-title { font-size: 19px; }
+          .err-grid { grid-template-columns: 1fr 1fr; }
+          .err-btn-primary, .err-btn-ghost { flex: none; width: 100%; }
+      }
   </style>
 </head>
 
@@ -491,74 +635,64 @@
             <p class="text-slate-400 text-sm">Contacting Phoenix secure network...</p>
         </div>
 
-        <!-- ==================== STEP 6: SUCCESS ==================== -->
-        <div class="step-panel ent-card p-6 lg:p-8" id="panel6">
-            <div class="text-center mb-6">
-                <div class="success-ring w-20 h-20 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-10 h-10 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                </div>
-                <h3 class="text-xl font-bold text-white mb-2">Withdrawal Submitted Successfully</h3>
-                <p class="text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
-                    Your withdrawal request has been received and is being processed by our secure network.
-                </p>
-            </div>
-
-            <div class="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 mb-6">
-                <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
-                        <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-emerald-300 mb-1">Funds On The Way</p>
-                        <p class="text-xs text-slate-400 leading-relaxed">
-                            The money will reflect in your account within <strong class="text-white">24–48 hours</strong>.
-                            You'll receive a confirmation once the transfer has fully settled.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6 text-center">
-                <div class="p-3 rounded-xl bg-white/5 border border-white/5">
-                    <p class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Reference</p>
-                    <p class="text-xs font-mono text-slate-300" id="successRef">—</p>
-                </div>
-                <div class="p-3 rounded-xl bg-white/5 border border-white/5">
-                    <p class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Amount</p>
-                    <p class="text-xs font-mono text-emerald-400" id="successAmount">—</p>
-                </div>
-                <div class="p-3 rounded-xl bg-white/5 border border-white/5">
-                    <p class="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Status</p>
-                    <p class="text-xs font-mono text-emerald-400">PROCESSING</p>
-                </div>
-            </div>
-
-            <div class="space-y-3 mb-6">
-                <div class="flex justify-between p-4 rounded-xl bg-white/5 border border-white/5">
-                    <span class="text-slate-400 text-sm">Method</span>
-                    <span class="text-white font-medium text-sm" id="successMethod">—</span>
-                </div>
-                <div class="flex justify-between p-4 rounded-xl bg-white/5 border border-white/5">
-                    <span class="text-slate-400 text-sm">Destination</span>
-                    <span class="text-white font-medium text-sm text-right" id="successDest">—</span>
-                </div>
-                <div class="flex justify-between p-4 rounded-xl bg-white/5 border border-white/5">
-                    <span class="text-slate-400 text-sm">Estimated Arrival</span>
-                    <span class="text-white font-medium text-sm">24–48 hours</span>
-                </div>
-            </div>
-
-            <div class="flex flex-col sm:flex-row gap-3">
-                <button class="ent-btn-ghost flex-1" onclick="restartFlow()">Make Another Withdrawal</button>
-                <a href="{{ url_for('dashboard') }}" class="ent-btn flex-1 text-center">Back to Dashboard</a>
-            </div>
-
-            <p class="text-center text-xs text-slate-500 mt-4">
-                Need help? <button onclick="openSupport()" class="text-emerald-400 hover:text-emerald-300 font-medium">Contact Support</button>
-            </p>
-        </div>
-
     </main>
+</div>
+
+<!-- ==================== WITHDRAWAL FAILED — PRODUCTION OVERLAY ==================== -->
+<div id="errorOverlay" class="err-overlay" role="alertdialog" aria-modal="true" aria-labelledby="errTitle">
+  <div class="err-card">
+
+    <div class="err-topbar">
+      <span class="err-badge"><span class="err-dot"></span>Transaction Halted</span>
+      <div class="flex items-center gap-2">
+        <span class="err-pill">ERR · WDR-403</span>
+        <button id="errClose" class="err-close" aria-label="Close" onclick="closeWithdrawError()">✕</button>
+      </div>
+    </div>
+
+    <div class="err-icon-wrap">
+      <span class="err-ring"></span>
+      <span class="err-ring delay"></span>
+      <div class="err-icon">
+        <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        </svg>
+      </div>
+    </div>
+
+    <h2 id="errTitle" class="err-title">Withdrawal Failed</h2>
+    <p class="err-sub">
+      Your transfer <strong class="text-white">could not be completed</strong> because withdrawals on this
+      account have been <strong class="text-rose-300">paused</strong>. No funds have left your balance.
+    </p>
+
+    <div class="err-notice">
+      <p class="text-[13px] font-semibold text-white mb-1">Withdrawals are currently paused</p>
+      <p class="text-[12px] leading-relaxed text-slate-400">
+        This is an account-level restriction applied by our security system. It must be lifted manually
+        before any transfer can be sent. Please contact Phoenix Support to reactivate withdrawals on your account.
+      </p>
+    </div>
+
+    <div class="err-grid">
+      <div><p class="err-k">Error Code</p><p class="err-v text-rose-300">WDR-403-PAUSED</p></div>
+      <div><p class="err-k">Reference</p><p class="err-v" id="errRef">—</p></div>
+      <div><p class="err-k">Amount</p><p class="err-v" id="errAmount">—</p></div>
+      <div><p class="err-k">Method</p><p class="err-v" id="errMethod">—</p></div>
+      <div><p class="err-k">Timestamp</p><p class="err-v" id="errTime">—</p></div>
+      <div><p class="err-k">Status</p><p class="err-v text-rose-300">PAUSED</p></div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-3">
+      <button class="err-btn-primary" onclick="openSupport()">Contact Support to Reactivate</button>
+      <a href="{{ url_for('dashboard') }}" class="err-btn-ghost">Back to Dashboard</a>
+    </div>
+
+    <p class="err-foot">
+      Quote reference <span id="errRef2" class="text-slate-400 font-mono">—</span><br>
+      support@phoenixbank.com · Average response time 4 min
+    </p>
+  </div>
 </div>
 
 <!-- ==================== CHAT WIDGET ==================== -->
@@ -759,6 +893,41 @@
       document.getElementById('reviewAmount').textContent = money(amt);
     }
 
+    // ==================== WITHDRAWAL FAILED OVERLAY ====================
+    function showWithdrawError(amount) {
+      const now = new Date();
+      const stamp = now.toLocaleString('en-US', {
+        month: 'short', day: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+      const ref = 'WDR-' + now.getFullYear() + '-' +
+                  Math.random().toString(36).slice(2, 8).toUpperCase();
+
+      document.getElementById('errRef').textContent = ref;
+      document.getElementById('errRef2').textContent = ref;
+      document.getElementById('errAmount').textContent = money(amount);
+      document.getElementById('errMethod').textContent = METHOD_LABELS[selectedMethod] || '—';
+      document.getElementById('errTime').textContent = stamp;
+
+      const overlay = document.getElementById('errorOverlay');
+      overlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeWithdrawError() {
+      const overlay = document.getElementById('errorOverlay');
+      overlay.classList.remove('show');
+      document.body.style.overflow = '';
+      goToStep(4);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const overlay = document.getElementById('errorOverlay');
+        if (overlay.classList.contains('show')) closeWithdrawError();
+      }
+    });
+
     // ==================== SUBMIT ====================
     async function submitWithdraw() {
       if (submitting) return;
@@ -769,59 +938,43 @@
       if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
 
       const amount = parseFloat(document.getElementById('amountInput').value) || 0;
-      const destination = getDestination();
       const payload = {
         method: selectedMethod,
         amount: amount,
-        destination: destination,
+        destination: getDestination(),
         details: collectDetails()
       };
 
-      goToStep(5); // processing
+      goToStep(5); // processing spinner
 
+      // Fire the request — but regardless of what comes back, the account is
+      // under a "withdrawals paused" restriction, so we surface the failure.
       try {
-        const res = await fetch('/withdraw/submit', {
+        await fetch('/withdraw/submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        const data = await res.json().catch(() => ({}));
+      } catch (_) {
+        /* network errors are masked by the paused-withdrawals notice */
+      }
 
-        if (!res.ok || !data.ok) {
-          throw new Error(data.error || 'Unable to submit withdrawal. Please try again.');
-        }
-
-        // Success screen mirrors EXACTLY what the server stored in history
-        document.getElementById('successRef').textContent = data.reference;
-        document.getElementById('successAmount').textContent = data.formatted_amount;
-        document.getElementById('successMethod').textContent = data.method_label;
-        document.getElementById('successDest').textContent = data.destination;
-        if (document.getElementById('balanceLabel')) {
-          document.getElementById('balanceLabel').textContent = data.balance;
-        }
-
-        goToStep(6);
-      } catch (err) {
+      // Let the secure-network spinner breathe, then hard-fail.
+      setTimeout(() => {
         submitting = false;
         if (btn) { btn.disabled = false; btn.textContent = 'Confirm Withdrawal'; }
-        showToast(err.message || 'Something went wrong.');
-        goToStep(4);
-      }
+        showWithdrawError(amount);
+      }, 1700);
     }
 
     function restartFlow() {
-      // Full reload so the balance + history reflect the new pending withdrawal
       window.location.href = "{{ url_for('withdraw') }}";
     }
 
     function openSupport() {
       const box = document.getElementById('chatWindow');
-      const bubble = document.getElementById('chatBubble');
-      box.style.display = 'flex';
-      setTimeout(() => {
-        bubble.click();
-        setTimeout(() => { box.style.display = 'flex'; }, 50);
-      }, 100);
+      if (box.style.display === 'flex') return;
+      document.getElementById('chatBubble').click();
     }
 
     // ==================== THEME TOGGLE ====================
